@@ -52,6 +52,9 @@ export async function GET(request: NextRequest) {
             region: point.region,
             latitude: point.latitude,
             longitude: point.longitude,
+            // Also include lat/lng for map component
+            lat: point.latitude,
+            lng: point.longitude,
             distance: 'distance' in point ? Math.round((point.distance as number) * 10) / 10 : undefined,
             isActive: point.isActive
         }));

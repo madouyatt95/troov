@@ -6,16 +6,23 @@ import { useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardTitle, CardDescription } from '@/components/ui/card';
+import dynamic from 'next/dynamic';
+
+// Dynamically import map to avoid SSR issues
+const DepositMap = dynamic(() => import('@/components/DepositMap').then(mod => mod.DepositMap), { ssr: false });
 
 type Step = 'docType' | 'info' | 'deposit' | 'confirm' | 'success';
 
 interface DepositPoint {
     id: string;
     name: string;
-    type: string;
+    type?: string;
     address: string;
     phone?: string;
     distance?: number;
+    lat: number;
+    lng: number;
+    region?: string;
 }
 
 export default function FinderPage() {
@@ -32,6 +39,7 @@ export default function FinderPage() {
     const [selectedDepositPoint, setSelectedDepositPoint] = useState<DepositPoint | null>(null);
     const [depositPoints, setDepositPoints] = useState<DepositPoint[]>([]);
     const [trackingCode, setTrackingCode] = useState('');
+    const [showMap, setShowMap] = useState(false);
 
     const regions = [
         'DAKAR', 'THIES', 'SAINT_LOUIS', 'DIOURBEL', 'FATICK', 'KAOLACK',
@@ -188,36 +196,67 @@ export default function FinderPage() {
             case 'deposit':
                 return (
                     <div className="animate-fade-in">
-                        <h2 className="text-xl font-bold mb-6">Choisir un point de dépôt</h2>
+                        <div className="flex items-center justify-between mb-4">
+                            <h2 className="text-xl font-bold">Choisir un point de dépôt</h2>
+                            <button
+                                onClick={() => setShowMap(!showMap)}
+                                className="text-sm text-[#4cc9f0] flex items-center gap-1"
+                            >
+                                {showMap ? '📋 Liste' : '🗺️ Carte'}
+                            </button>
+                        </div>
 
-                        {depositPoints.length === 0 ? (
-                            <p className="text-center text-[#a0a0b9] py-8">Aucun point de dépôt trouvé dans cette région</p>
-                        ) : (
-                            <div className="space-y-3 max-h-[50vh] overflow-y-auto">
-                                {depositPoints.map(point => (
-                                    <Card
-                                        key={point.id}
-                                        variant={selectedDepositPoint?.id === point.id ? 'highlight' : 'interactive'}
-                                        className="cursor-pointer"
-                                        onClick={() => setSelectedDepositPoint(point)}
-                                    >
-                                        <CardContent className="flex items-center gap-3">
-                                            <span className="text-2xl">{point.type === 'ADMIN' ? '🏛️' : '🟠'}</span>
-                                            <div className="flex-1">
-                                                <CardTitle className="text-base">{point.name}</CardTitle>
-                                                <CardDescription className="text-xs">{point.address}</CardDescription>
-                                            </div>
-                                            {point.distance && (
-                                                <span className="text-sm text-[#4cc9f0]">{point.distance}km</span>
-                                            )}
-                                        </CardContent>
-                                    </Card>
-                                ))}
+                        {/* Map View */}
+                        {showMap && (
+                            <div className="mb-4">
+                                <DepositMap
+                                    onSelect={(point) => setSelectedDepositPoint(point as DepositPoint)}
+                                    selectedId={selectedDepositPoint?.id}
+                                />
+                            </div>
+                        )}
+
+                        {/* List View */}
+                        {!showMap && (
+                            <>
+                                {depositPoints.length === 0 ? (
+                                    <p className="text-center text-[#a0a0b9] py-8">Aucun point de dépôt trouvé dans cette région</p>
+                                ) : (
+                                    <div className="space-y-3 max-h-[40vh] overflow-y-auto">
+                                        {depositPoints.map(point => (
+                                            <Card
+                                                key={point.id}
+                                                variant={selectedDepositPoint?.id === point.id ? 'highlight' : 'interactive'}
+                                                className="cursor-pointer"
+                                                onClick={() => setSelectedDepositPoint(point)}
+                                            >
+                                                <CardContent className="flex items-center gap-3">
+                                                    <span className="text-2xl">{point.type === 'ADMIN' ? '🏛️' : '🟠'}</span>
+                                                    <div className="flex-1">
+                                                        <CardTitle className="text-base">{point.name}</CardTitle>
+                                                        <CardDescription className="text-xs">{point.address}</CardDescription>
+                                                    </div>
+                                                    {point.distance && (
+                                                        <span className="text-sm text-[#4cc9f0]">{point.distance}km</span>
+                                                    )}
+                                                </CardContent>
+                                            </Card>
+                                        ))}
+                                    </div>
+                                )}
+                            </>
+                        )}
+
+                        {/* Selected point indicator */}
+                        {selectedDepositPoint && (
+                            <div className="bg-[#4361ee]/10 border border-[#4361ee] rounded-xl p-3 mt-4 flex items-center gap-2">
+                                <span className="text-[#4cc9f0]">✓</span>
+                                <span className="text-sm font-medium">{selectedDepositPoint.name}</span>
                             </div>
                         )}
 
                         <Button
-                            className="w-full mt-6"
+                            className="w-full mt-4"
                             disabled={!selectedDepositPoint}
                             onClick={() => setStep('confirm')}
                         >
