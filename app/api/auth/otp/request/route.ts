@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { checkRateLimit } from '@/lib/rate-limit';
 import { generateOtp, hashOtp, hashData, generateSalt } from '@/lib/hash';
 import prisma from '@/lib/db/prisma';
+import { sendWhatsAppOTP, getOtpMessage } from '@/lib/whatsapp';
 
 export async function POST(request: NextRequest) {
     try {
@@ -68,21 +69,31 @@ export async function POST(request: NextRequest) {
             console.log(`[DEV] OTP for ${phone}: ${otp}`);
         }
 
-        // TODO: Send SMS in production
-        // await sendSms(phone, getOtpMessage(otp, language));
+        // Send OTP via WhatsApp
+        const lang = language as 'fr' | 'en' | 'wo';
+        const whatsappResult = await sendWhatsAppOTP(phone, otp, lang);
 
-        // Generate message based on language
+        if (!whatsappResult.success && process.env.NODE_ENV === 'production') {
+            console.error('[OTP] WhatsApp send failed:', whatsappResult.error);
+            // Don't fail the request - log warning and continue
+            // In production, you might want to fall back to SMS
+        }
+
+        // Generate message based on language and channel
+        const channel = whatsappResult.messageId !== 'dev-mode' ? 'WhatsApp' : 'SMS';
         const messages = {
-            fr: 'Code envoyé par SMS',
-            wo: 'Dañu yónnee code bi SMS',
-            en: 'Code sent via SMS'
+            fr: `Code envoyé par ${channel}`,
+            wo: `Dañu yónnee code bi ${channel}`,
+            en: `Code sent via ${channel}`
         };
 
         return NextResponse.json({
             success: true,
-            message: messages[language as keyof typeof messages] || messages.fr,
+            message: messages[lang] || messages.fr,
             expiresIn: 300, // 5 minutes in seconds
-            attemptsRemaining: rateLimitResult.remaining
+            attemptsRemaining: rateLimitResult.remaining,
+            // Only include debug info in dev
+            ...(process.env.NODE_ENV === 'development' && { debug: { otp } })
         });
 
     } catch (error) {
