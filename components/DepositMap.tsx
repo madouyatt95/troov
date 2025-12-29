@@ -94,6 +94,17 @@ export function DepositMap({ onSelect, selectedId }: DepositMapProps) {
         );
     }
 
+    // Show a simple fallback if no points are loaded (API error case)
+    if (points.length === 0) {
+        return (
+            <div className="w-full h-[200px] bg-[#1a1a2e] rounded-xl flex flex-col items-center justify-center border border-[#3a3a50]">
+                <span className="text-4xl mb-2">🗺️</span>
+                <p className="text-[#a0a0b9] text-sm">Aucun point de dépôt disponible</p>
+                <p className="text-[#6b6b80] text-xs mt-1">Veuillez réessayer plus tard</p>
+            </div>
+        );
+    }
+
     return (
         <div className="w-full rounded-xl overflow-hidden border border-[#3a3a50]">
             {/* Map Header */}

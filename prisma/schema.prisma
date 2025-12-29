@@ -131,22 +131,22 @@ model Match {
 model DepositPoint {
   id        String   @id @default(uuid())
   name      String
-  type      String // 'ADMIN' | 'OPERATOR_SHOP'
+  type      String   @default("ADMIN") // 'ADMIN' | 'OPERATOR_SHOP'
   address   String
   latitude  Float
   longitude Float
   region    String
+  department String?
   operator  String? // 'ORANGE' | 'FREE' | 'EXPRESSO'
   phone     String?
   hours     String? // e.g. "8h-18h Lun-Ven"
-  isActive  Boolean  @default(true) @map("is_active")
-  createdAt DateTime @default(now()) @map("created_at")
+  isActive  Boolean  @default(true)
+  createdAt DateTime @default(now())
 
   declarations Declaration[]
   agents       Agent[]
 
   @@index([region, isActive])
-  @@map("deposit_points")
 }
 
 model Agent {
