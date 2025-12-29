@@ -1,0 +1,196 @@
+{
+  "app": {
+    "name": "Troov",
+    "tagline": "Retrouvez vos documents en toute sécurité"
+  },
+  "common": {
+    "loading": "Chargement...",
+    "error": "Une erreur s'est produite",
+    "retry": "Réessayer",
+    "back": "Retour",
+    "continue": "Continuer",
+    "confirm": "Confirmer",
+    "cancel": "Annuler",
+    "search": "Rechercher",
+    "close": "Fermer"
+  },
+  "home": {
+    "title": "Bienvenue sur Troov",
+    "subtitle": "L'application pour retrouver vos CNI et passeports perdus",
+    "finder": {
+      "title": "J'ai TROUVÉ un document",
+      "subtitle": "Déclarer sans inscription"
+    },
+    "owner": {
+      "title": "J'ai PERDU mon document",
+      "subtitle": "M'inscrire pour être alerté"
+    },
+    "status": {
+      "title": "Suivre ma déclaration",
+      "subtitle": "Entrer mon code de suivi"
+    },
+    "security": {
+      "badge": "Vos données sont protégées",
+      "description": "Aucune info visible publiquement"
+    }
+  },
+  "auth": {
+    "phone": {
+      "label": "Votre numéro de téléphone",
+      "placeholder": "77 123 45 67",
+      "hint": "Ce numéro doit être celui utilisé pour obtenir votre CNI."
+    },
+    "otp": {
+      "title": "Code de vérification",
+      "subtitle": "Entrez le code reçu par SMS au",
+      "placeholder": "Entrez le code",
+      "timer": "Code valide pendant",
+      "resend": "Renvoyer",
+      "remaining": "restant(s)"
+    },
+    "login": "Se connecter",
+    "logout": "Se déconnecter",
+    "welcome": "Bienvenue sur Troov !",
+    "accountCreated": "Compte créé avec succès"
+  },
+  "finder": {
+    "title": "Déclarer un document trouvé",
+    "step": "Étape",
+    "of": "sur",
+    "docType": {
+      "title": "Quel document avez-vous trouvé ?",
+      "cni": "Carte Nationale d'Identité (CNI)",
+      "passport": "Passeport"
+    },
+    "info": {
+      "title": "Informations du document",
+      "subtitle": "(seules ces données sont requises)",
+      "lastFour": {
+        "label": "4 derniers chiffres du numéro",
+        "placeholder": "1234"
+      },
+      "namePrefix": {
+        "label": "3 premières lettres du nom",
+        "placeholder": "DIO"
+      },
+      "region": {
+        "label": "Où avez-vous trouvé ce document ?",
+        "placeholder": "Sélectionner une région"
+      },
+      "security": "Ces données sont chiffrées et ne seront jamais affichées"
+    },
+    "deposit": {
+      "title": "Choisir un point de dépôt",
+      "useLocation": "Utiliser ma position",
+      "nearby": "Points proches de vous",
+      "open": "Ouvert",
+      "closed": "Fermé"
+    },
+    "confirm": {
+      "title": "Vérification de sécurité",
+      "summary": "Récapitulatif",
+      "document": "Document",
+      "region": "Région",
+      "depositPoint": "Dépôt",
+      "warning": "Déposez le document dans les 48h au point choisi. Passé ce délai, la déclaration sera annulée.",
+      "submit": "Confirmer la déclaration"
+    },
+    "success": {
+      "title": "Déclaration enregistrée !",
+      "trackingCode": "Votre code de suivi",
+      "copy": "Copier",
+      "share": "Partager",
+      "nextStep": "Prochaine étape",
+      "depositAt": "Déposez le document à",
+      "before": "Avant le",
+      "directions": "Voir l'itinéraire",
+      "thanks": "Merci pour votre bonne action 🙏"
+    }
+  },
+  "owner": {
+    "title": "Déclarer une perte",
+    "dashboard": {
+      "title": "Mes déclarations",
+      "empty": "Vous n'avez pas encore déclaré de document perdu.",
+      "declareNew": "Déclarer une perte"
+    },
+    "form": {
+      "title": "Informations du document perdu",
+      "docType": "Type de document",
+      "docNumber": {
+        "label": "Numéro complet du document",
+        "placeholder": "1 234 567 890 123"
+      },
+      "fullName": {
+        "label": "Nom complet (comme sur le document)",
+        "placeholder": "DIOP AMADOU"
+      },
+      "dob": {
+        "label": "Date de naissance",
+        "placeholder": "JJ/MM/AAAA"
+      },
+      "security": "Ces informations sont chiffrées immédiatement. Personne ne peut les voir.",
+      "submit": "Rechercher mon document"
+    },
+    "match": {
+      "title": "Bonne nouvelle !",
+      "subtitle": "Votre document a été trouvé",
+      "pickupAt": "Récupérez-le ici",
+      "hours": "Horaires",
+      "documents": "Documents à apporter",
+      "documentsList": "Une pièce d'identité alternative (permis, carte d'étudiant...)",
+      "qrCode": "Ce QR code (capture d'écran OK)",
+      "directions": "Voir l'itinéraire"
+    }
+  },
+  "status": {
+    "title": "Suivre ma déclaration",
+    "label": "Code de suivi",
+    "placeholder": "TRV-2024-XXXXXX",
+    "search": "Rechercher",
+    "result": {
+      "status": "Statut",
+      "depositPoint": "Point de dépôt",
+      "info": "Le document a été déposé et est en attente du propriétaire."
+    },
+    "states": {
+      "pending": "En attente",
+      "approved": "Approuvé",
+      "deposited": "Déposé",
+      "matched": "Correspondance trouvée",
+      "pickedUp": "Récupéré",
+      "closed": "Clôturé",
+      "rejected": "Rejeté",
+      "expired": "Expiré"
+    }
+  },
+  "errors": {
+    "rateLimit": "Trop de tentatives. Réessayez dans {time}.",
+    "otpIncorrect": "Code incorrect. Il vous reste {attempts} tentative(s).",
+    "otpExpired": "Code expiré. Demandez un nouveau code.",
+    "blocked": "Compte temporairement bloqué. Contactez le support.",
+    "networkError": "Connexion impossible. Vérifiez votre connexion internet.",
+    "serverError": "Une erreur serveur s'est produite. Réessayez plus tard."
+  },
+  "security": {
+    "badge": "Données protégées",
+    "encrypted": "Chiffrées immédiatement",
+    "neverShare": "Ne partagez jamais ce code. Troov ne vous le demandera jamais par téléphone."
+  },
+  "regions": {
+    "DAKAR": "Dakar",
+    "THIES": "Thiès",
+    "SAINT_LOUIS": "Saint-Louis",
+    "DIOURBEL": "Diourbel",
+    "FATICK": "Fatick",
+    "KAOLACK": "Kaolack",
+    "KOLDA": "Kolda",
+    "LOUGA": "Louga",
+    "MATAM": "Matam",
+    "SEDHIOU": "Sédhiou",
+    "TAMBACOUNDA": "Tambacounda",
+    "ZIGUINCHOR": "Ziguinchor",
+    "KAFFRINE": "Kaffrine",
+    "KEDOUGOU": "Kédougou"
+  }
+}

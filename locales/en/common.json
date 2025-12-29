@@ -1,0 +1,196 @@
+{
+    "app": {
+        "name": "Troov",
+        "tagline": "Find your documents safely"
+    },
+    "common": {
+        "loading": "Loading...",
+        "error": "An error occurred",
+        "retry": "Retry",
+        "back": "Back",
+        "continue": "Continue",
+        "confirm": "Confirm",
+        "cancel": "Cancel",
+        "search": "Search",
+        "close": "Close"
+    },
+    "home": {
+        "title": "Welcome to Troov",
+        "subtitle": "The app to find your lost CNI and passports",
+        "finder": {
+            "title": "I FOUND a document",
+            "subtitle": "Report without signing up"
+        },
+        "owner": {
+            "title": "I LOST my document",
+            "subtitle": "Sign up to be notified"
+        },
+        "status": {
+            "title": "Track my declaration",
+            "subtitle": "Enter my tracking code"
+        },
+        "security": {
+            "badge": "Your data is protected",
+            "description": "No info visible publicly"
+        }
+    },
+    "auth": {
+        "phone": {
+            "label": "Your phone number",
+            "placeholder": "77 123 45 67",
+            "hint": "This must be the number used to obtain your CNI."
+        },
+        "otp": {
+            "title": "Verification code",
+            "subtitle": "Enter the code sent by SMS to",
+            "placeholder": "Enter the code",
+            "timer": "Code valid for",
+            "resend": "Resend",
+            "remaining": "remaining"
+        },
+        "login": "Sign in",
+        "logout": "Sign out",
+        "welcome": "Welcome to Troov!",
+        "accountCreated": "Account created successfully"
+    },
+    "finder": {
+        "title": "Report a found document",
+        "step": "Step",
+        "of": "of",
+        "docType": {
+            "title": "What document did you find?",
+            "cni": "National Identity Card (CNI)",
+            "passport": "Passport"
+        },
+        "info": {
+            "title": "Document information",
+            "subtitle": "(only this data is required)",
+            "lastFour": {
+                "label": "Last 4 digits of the number",
+                "placeholder": "1234"
+            },
+            "namePrefix": {
+                "label": "First 3 letters of the name",
+                "placeholder": "DIO"
+            },
+            "region": {
+                "label": "Where did you find this document?",
+                "placeholder": "Select a region"
+            },
+            "security": "This data is encrypted and will never be displayed"
+        },
+        "deposit": {
+            "title": "Choose a deposit point",
+            "useLocation": "Use my location",
+            "nearby": "Points near you",
+            "open": "Open",
+            "closed": "Closed"
+        },
+        "confirm": {
+            "title": "Security verification",
+            "summary": "Summary",
+            "document": "Document",
+            "region": "Region",
+            "depositPoint": "Deposit point",
+            "warning": "Deposit the document within 48h at the chosen point. After this, the declaration will be cancelled.",
+            "submit": "Confirm declaration"
+        },
+        "success": {
+            "title": "Declaration registered!",
+            "trackingCode": "Your tracking code",
+            "copy": "Copy",
+            "share": "Share",
+            "nextStep": "Next step",
+            "depositAt": "Deposit the document at",
+            "before": "Before",
+            "directions": "Get directions",
+            "thanks": "Thank you for your good deed 🙏"
+        }
+    },
+    "owner": {
+        "title": "Report a loss",
+        "dashboard": {
+            "title": "My declarations",
+            "empty": "You haven't reported any lost documents yet.",
+            "declareNew": "Report a loss"
+        },
+        "form": {
+            "title": "Lost document information",
+            "docType": "Document type",
+            "docNumber": {
+                "label": "Full document number",
+                "placeholder": "1 234 567 890 123"
+            },
+            "fullName": {
+                "label": "Full name (as on document)",
+                "placeholder": "DIOP AMADOU"
+            },
+            "dob": {
+                "label": "Date of birth",
+                "placeholder": "DD/MM/YYYY"
+            },
+            "security": "This information is encrypted immediately. No one can see it.",
+            "submit": "Search for my document"
+        },
+        "match": {
+            "title": "Good news!",
+            "subtitle": "Your document has been found",
+            "pickupAt": "Pick it up here",
+            "hours": "Hours",
+            "documents": "Documents to bring",
+            "documentsList": "An alternative ID (license, student card...)",
+            "qrCode": "This QR code (screenshot OK)",
+            "directions": "Get directions"
+        }
+    },
+    "status": {
+        "title": "Track declaration",
+        "label": "Tracking code",
+        "placeholder": "TRV-2024-XXXXXX",
+        "search": "Search",
+        "result": {
+            "status": "Status",
+            "depositPoint": "Deposit point",
+            "info": "The document has been deposited and is awaiting the owner."
+        },
+        "states": {
+            "pending": "Pending",
+            "approved": "Approved",
+            "deposited": "Deposited",
+            "matched": "Match found",
+            "pickedUp": "Picked up",
+            "closed": "Closed",
+            "rejected": "Rejected",
+            "expired": "Expired"
+        }
+    },
+    "errors": {
+        "rateLimit": "Too many attempts. Try again in {time}.",
+        "otpIncorrect": "Incorrect code. You have {attempts} attempt(s) left.",
+        "otpExpired": "Code expired. Request a new code.",
+        "blocked": "Account temporarily blocked. Contact support.",
+        "networkError": "Connection failed. Check your internet connection.",
+        "serverError": "A server error occurred. Try again later."
+    },
+    "security": {
+        "badge": "Protected data",
+        "encrypted": "Encrypted immediately",
+        "neverShare": "Never share this code. Troov will never ask for it by phone."
+    },
+    "regions": {
+        "DAKAR": "Dakar",
+        "THIES": "Thiès",
+        "SAINT_LOUIS": "Saint-Louis",
+        "DIOURBEL": "Diourbel",
+        "FATICK": "Fatick",
+        "KAOLACK": "Kaolack",
+        "KOLDA": "Kolda",
+        "LOUGA": "Louga",
+        "MATAM": "Matam",
+        "SEDHIOU": "Sédhiou",
+        "TAMBACOUNDA": "Tambacounda",
+        "ZIGUINCHOR": "Ziguinchor",
+        "KAFFRINE": "Kaffrine",
+        "KEDOUGOU": "Kédougou"
+    }
+}

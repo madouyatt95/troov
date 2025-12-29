@@ -1,0 +1,196 @@
+{
+    "app": {
+        "name": "Troov",
+        "tagline": "Gis sa kaayit ci kaarange"
+    },
+    "common": {
+        "loading": "Yeggal...",
+        "error": "Am na jafe",
+        "retry": "Jéemaatil",
+        "back": "Déllu",
+        "continue": "Jëm kanam",
+        "confirm": "Dëggal",
+        "cancel": "Nëxal",
+        "search": "Wut",
+        "close": "Tëj"
+    },
+    "home": {
+        "title": "Dalal jàmm ci Troov",
+        "subtitle": "App bi ngir gis sa CNI ak passeport yu ñu ñàkk",
+        "finder": {
+            "title": "GISUMA kaayit",
+            "subtitle": "Daldi bind"
+        },
+        "owner": {
+            "title": "ÑÀKKUMA sama kaayit",
+            "subtitle": "Bindul ngir xam bu ñu ko gis"
+        },
+        "status": {
+            "title": "Xool sama waxtaan",
+            "subtitle": "Dugal sama code"
+        },
+        "security": {
+            "badge": "Sa njàng yi dañuy aar",
+            "description": "Keneen mën ula gis ci biir"
+        }
+    },
+    "auth": {
+        "phone": {
+            "label": "Sa numéro telefon",
+            "placeholder": "77 123 45 67",
+            "hint": "Numéro bi war naa nekk ki nga jëfandikoo ngir sa CNI."
+        },
+        "otp": {
+            "title": "Code vérification",
+            "subtitle": "Dugal code bi ñu yónnee SMS ci",
+            "placeholder": "Dugal code bi",
+            "timer": "Code bi dafa am",
+            "resend": "Yónnee ca",
+            "remaining": "des"
+        },
+        "login": "Dugg",
+        "logout": "Génn",
+        "welcome": "Dalal jàmm Troov!",
+        "accountCreated": "Compte bi dafa sos"
+    },
+    "finder": {
+        "title": "Bind kaayit bu nga gis",
+        "step": "Étape",
+        "of": "ci",
+        "docType": {
+            "title": "Lu nga gis?",
+            "cni": "Carte Nationale d'Identité (CNI)",
+            "passport": "Passeport"
+        },
+        "info": {
+            "title": "Xibaar yu kaayit bi",
+            "subtitle": "(yi rekk lañu laaj)",
+            "lastFour": {
+                "label": "4 chiffres yu mujj yi ci numéro bi",
+                "placeholder": "1234"
+            },
+            "namePrefix": {
+                "label": "3 lettre yu njëk yi ci tur gi",
+                "placeholder": "DIO"
+            },
+            "region": {
+                "label": "Ana foo ko gis?",
+                "placeholder": "Tann région"
+            },
+            "security": "Njàng yi dañuy ñëbb, mënu leen koy gis"
+        },
+        "deposit": {
+            "title": "Tann bérab bu nga koy yóbbu",
+            "useLocation": "Jëfandikoo sama position",
+            "nearby": "Bérab yu jege la",
+            "open": "Ubbiku",
+            "closed": "Tëj"
+        },
+        "confirm": {
+            "title": "Vérification kaarange",
+            "summary": "Xoolal",
+            "document": "Kaayit",
+            "region": "Région",
+            "depositPoint": "Bérab",
+            "warning": "Yóbbu kaayit bi 48h ci bérab bi. Bu jeexee, dañu fey waxtaan wi.",
+            "submit": "Dëggal"
+        },
+        "success": {
+            "title": "Waxtaan bi dafa bind!",
+            "trackingCode": "Sa code suivi",
+            "copy": "Copier",
+            "share": "Séddoo",
+            "nextStep": "Li ci topp",
+            "depositAt": "Yóbbu kaayit bi ci",
+            "before": "Balaa",
+            "directions": "Gis yoon wi",
+            "thanks": "Jërejëf ci sa jëf bu baax 🙏"
+        }
+    },
+    "owner": {
+        "title": "Bind ci ñàkk",
+        "dashboard": {
+            "title": "Sama waxtaan yi",
+            "empty": "Amoo waxtaan wala kaayit bu ñàkk.",
+            "declareNew": "Bind ñàkk"
+        },
+        "form": {
+            "title": "Xibaar yu kaayit bi ñàkk",
+            "docType": "Type kaayit",
+            "docNumber": {
+                "label": "Numéro bu kaayit bi mat",
+                "placeholder": "1 234 567 890 123"
+            },
+            "fullName": {
+                "label": "Tur gu mat (niki ci kaayit bi)",
+                "placeholder": "DIOP AMADOU"
+            },
+            "dob": {
+                "label": "Bés bu ñu la judoo",
+                "placeholder": "JJ/MM/AAAA"
+            },
+            "security": "Njàng yi dañuy ñëbb. Keneen mënul ko gis.",
+            "submit": "Wut sama kaayit"
+        },
+        "match": {
+            "title": "Xibaar bu baax!",
+            "subtitle": "Dañu gis sa kaayit",
+            "pickupAt": "Jël ko fii",
+            "hours": "Waxtu",
+            "documents": "Lu nga war indi",
+            "documentsList": "Beneen kaayit (permis, carte etudiant...)",
+            "qrCode": "QR code bii (screenshot baax na)",
+            "directions": "Gis yoon wi"
+        }
+    },
+    "status": {
+        "title": "Xool waxtaan",
+        "label": "Code suivi",
+        "placeholder": "TRV-2024-XXXXXX",
+        "search": "Wut",
+        "result": {
+            "status": "Statut",
+            "depositPoint": "Bérab",
+            "info": "Kaayit bi dañu ko yóbbu te mu ngi xaar borom bi."
+        },
+        "states": {
+            "pending": "Ngi xaar",
+            "approved": "Nangu nañu ko",
+            "deposited": "Dafay nekk",
+            "matched": "Gis nañu borom bi",
+            "pickedUp": "Jël nañu ko",
+            "closed": "Jeex na",
+            "rejected": "Ñu ko bañ",
+            "expired": "Jeex na waxtu"
+        }
+    },
+    "errors": {
+        "rateLimit": "Jëfandikoo bu bari. Jéemaatil ginnaaw {time}.",
+        "otpIncorrect": "Code bi baaxul. Am nga {attempts} yoon yeneen.",
+        "otpExpired": "Code bi jeex na. Laaj beneen.",
+        "blocked": "Compte bi dañu ko tëj. Woo ci support.",
+        "networkError": "Mënuloo dugg. Xoolal sa connexion internet.",
+        "serverError": "Am na jafe ci serveur bi. Jéemaatil."
+    },
+    "security": {
+        "badge": "Njàng yu aar",
+        "encrypted": "Ñëbb nañu ko",
+        "neverShare": "Bul ko jox keneen. Troov du la laaj telefon."
+    },
+    "regions": {
+        "DAKAR": "Dakar",
+        "THIES": "Thiès",
+        "SAINT_LOUIS": "Ndar",
+        "DIOURBEL": "Diourbel",
+        "FATICK": "Fatick",
+        "KAOLACK": "Kaolack",
+        "KOLDA": "Kolda",
+        "LOUGA": "Louga",
+        "MATAM": "Matam",
+        "SEDHIOU": "Sédhiou",
+        "TAMBACOUNDA": "Tambacounda",
+        "ZIGUINCHOR": "Ziguinchor",
+        "KAFFRINE": "Kaffrine",
+        "KEDOUGOU": "Kédougou"
+    }
+}
