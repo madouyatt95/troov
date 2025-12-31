@@ -1,24 +1,31 @@
 @import "tailwindcss";
 
 :root {
-  /* Primary colors */
-  --color-primary: #4361ee;
-  --color-primary-dark: #3651d4;
-  --color-secondary: #4cc9f0;
-  
+  /* Cyberpunk theme colors */
+  --color-primary: #00d9ff;
+  --color-primary-dark: #00a8c7;
+  --color-secondary: #a855f7;
+  --color-secondary-dark: #7e22ce;
+
   /* Semantic colors */
   --color-success: #4ade80;
   --color-warning: #fbbf24;
   --color-error: #f87171;
-  
-  /* Neutral colors */
-  --color-bg: #1a1a2e;
-  --color-surface: #25253d;
-  --color-surface-hover: #2d2d4a;
+
+  /* Cyberpunk dark theme */
+  --color-bg: #0f0f23;
+  --color-bg-deep: #0a0a1a;
+  --color-surface: #1a1a35;
+  --color-surface-hover: #252550;
   --color-text: #ffffff;
-  --color-text-muted: #a0a0b9;
-  --color-text-disabled: #6b6b80;
-  
+  --color-text-muted: #8888aa;
+  --color-text-disabled: #5555770;
+
+  /* Glow effects */
+  --glow-cyan: 0 0 20px rgba(0, 217, 255, 0.4), 0 0 40px rgba(0, 217, 255, 0.2);
+  --glow-purple: 0 0 20px rgba(168, 85, 247, 0.4), 0 0 40px rgba(168, 85, 247, 0.2);
+  --glow-cyan-strong: 0 0 30px rgba(0, 217, 255, 0.6), 0 0 60px rgba(0, 217, 255, 0.3);
+
   /* Operator colors */
   --color-orange: #ff6b00;
   --color-free: #0066ff;
@@ -36,87 +43,116 @@ body {
   color: var(--color-text);
   min-height: 100vh;
   min-height: 100dvh;
+  overflow-x: hidden;
 }
 
-/* Custom scrollbar */
-::-webkit-scrollbar {
-  width: 6px;
-  height: 6px;
+/* Animated gradient orbs background */
+.orb-container {
+  position: fixed;
+  inset: 0;
+  overflow: hidden;
+  pointer-events: none;
+  z-index: 0;
 }
 
-::-webkit-scrollbar-track {
-  background: var(--color-surface);
+.orb {
+  position: absolute;
+  border-radius: 50%;
+  filter: blur(80px);
+  opacity: 0.5;
+  animation: float 20s ease-in-out infinite;
 }
 
-::-webkit-scrollbar-thumb {
-  background: var(--color-text-muted);
-  border-radius: 3px;
+.orb-1 {
+  width: 400px;
+  height: 400px;
+  background: radial-gradient(circle, var(--color-primary) 0%, transparent 70%);
+  top: -100px;
+  right: -100px;
+  animation-delay: 0s;
 }
 
-::-webkit-scrollbar-thumb:hover {
-  background: var(--color-text);
+.orb-2 {
+  width: 500px;
+  height: 500px;
+  background: radial-gradient(circle, var(--color-secondary) 0%, transparent 70%);
+  bottom: -150px;
+  left: -150px;
+  animation-delay: -7s;
 }
 
-/* Focus styles */
-*:focus-visible {
-  outline: 2px solid var(--color-primary);
-  outline-offset: 2px;
+.orb-3 {
+  width: 300px;
+  height: 300px;
+  background: radial-gradient(circle, var(--color-primary) 0%, transparent 70%);
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  animation-delay: -14s;
+  opacity: 0.3;
 }
 
-/* Touch target minimum size */
-button, a, input, select, textarea {
-  min-height: 44px;
+@keyframes float {
+
+  0%,
+  100% {
+    transform: translate(0, 0) scale(1);
+  }
+
+  25% {
+    transform: translate(30px, -30px) scale(1.1);
+  }
+
+  50% {
+    transform: translate(-20px, 20px) scale(0.95);
+  }
+
+  75% {
+    transform: translate(20px, 30px) scale(1.05);
+  }
 }
 
-/* Animations */
-@keyframes fadeIn {
-  from { opacity: 0; transform: translateY(10px); }
-  to { opacity: 1; transform: translateY(0); }
+/* Glowing cards */
+.glow-card {
+  background: rgba(26, 26, 53, 0.8);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 20px;
+  transition: all 0.3s ease;
 }
 
-@keyframes slideUp {
-  from { opacity: 0; transform: translateY(20px); }
-  to { opacity: 1; transform: translateY(0); }
+.glow-card:hover {
+  transform: translateY(-2px);
 }
 
-@keyframes shake {
-  0%, 100% { transform: translateX(0); }
-  10%, 30%, 50%, 70%, 90% { transform: translateX(-4px); }
-  20%, 40%, 60%, 80% { transform: translateX(4px); }
+.glow-card-cyan {
+  border-color: rgba(0, 217, 255, 0.3);
 }
 
-@keyframes pulse-soft {
-  0%, 100% { opacity: 1; }
-  50% { opacity: 0.7; }
+.glow-card-cyan:hover {
+  box-shadow: var(--glow-cyan);
+  border-color: rgba(0, 217, 255, 0.5);
 }
 
-.animate-fade-in {
-  animation: fadeIn 0.3s ease-out forwards;
+.glow-card-purple {
+  border-color: rgba(168, 85, 247, 0.3);
 }
 
-.animate-slide-up {
-  animation: slideUp 0.4s ease-out forwards;
+.glow-card-purple:hover {
+  box-shadow: var(--glow-purple);
+  border-color: rgba(168, 85, 247, 0.5);
 }
 
-.animate-shake {
-  animation: shake 0.5s ease-in-out;
+/* Neon text */
+.neon-text-cyan {
+  color: var(--color-primary);
+  text-shadow: 0 0 10px rgba(0, 217, 255, 0.5);
 }
 
-.animate-pulse-soft {
-  animation: pulse-soft 2s ease-in-out infinite;
-}
-
-/* Staggered animations */
-.stagger-1 { animation-delay: 0.1s; }
-.stagger-2 { animation-delay: 0.2s; }
-.stagger-3 { animation-delay: 0.3s; }
-.stagger-4 { animation-delay: 0.4s; }
-
-/* Glass effect */
-.glass {
-  background: rgba(37, 37, 61, 0.8);
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
+.neon-text-purple {
+  color: var(--color-secondary);
+  text-shadow: 0 0 10px rgba(168, 85, 247, 0.5);
 }
 
 /* Gradient text */
@@ -127,13 +163,221 @@ button, a, input, select, textarea {
   background-clip: text;
 }
 
-/* Status indicators */
-.status-pending { color: var(--color-warning); }
-.status-approved { color: var(--color-primary); }
-.status-deposited { color: var(--color-secondary); }
-.status-matched { color: var(--color-success); }
-.status-closed { color: var(--color-text-muted); }
-.status-rejected { color: var(--color-error); }
+/* Geometric illustration */
+.geo-illustration {
+  position: relative;
+  width: 200px;
+  height: 200px;
+  margin: 0 auto;
+}
+
+.geo-card {
+  position: absolute;
+  width: 120px;
+  height: 80px;
+  background: linear-gradient(135deg, #1a1a35 0%, #252550 100%);
+  border: 2px solid var(--color-primary);
+  border-radius: 12px;
+  box-shadow: var(--glow-cyan);
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%) rotate(-5deg);
+}
+
+.geo-card::before {
+  content: '';
+  position: absolute;
+  top: 12px;
+  left: 12px;
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, var(--color-primary), var(--color-secondary));
+}
+
+.geo-card::after {
+  content: '';
+  position: absolute;
+  top: 15px;
+  right: 12px;
+  width: 50px;
+  height: 8px;
+  background: rgba(255, 255, 255, 0.3);
+  border-radius: 4px;
+}
+
+.geo-card-lines {
+  position: absolute;
+  bottom: 12px;
+  left: 12px;
+  right: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.geo-card-lines span {
+  height: 6px;
+  background: rgba(255, 255, 255, 0.15);
+  border-radius: 3px;
+}
+
+.geo-card-lines span:first-child {
+  width: 80%;
+}
+
+.geo-card-lines span:last-child {
+  width: 60%;
+}
+
+.geo-pin {
+  position: absolute;
+  bottom: 20px;
+  right: 30px;
+  width: 40px;
+  height: 50px;
+}
+
+.geo-pin-head {
+  width: 40px;
+  height: 40px;
+  background: linear-gradient(135deg, var(--color-secondary), var(--color-primary));
+  border-radius: 50% 50% 50% 0;
+  transform: rotate(-45deg);
+  box-shadow: var(--glow-purple);
+}
+
+.geo-pin-dot {
+  position: absolute;
+  top: 12px;
+  left: 12px;
+  width: 16px;
+  height: 16px;
+  background: white;
+  border-radius: 50%;
+  transform: rotate(45deg);
+}
+
+/* Stats bar */
+.stats-bar {
+  background: linear-gradient(90deg, rgba(0, 217, 255, 0.1), rgba(168, 85, 247, 0.1));
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 16px;
+  padding: 16px 24px;
+}
+
+.stats-number {
+  font-size: 2rem;
+  font-weight: 700;
+  background: linear-gradient(135deg, var(--color-primary), var(--color-secondary));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+/* Custom scrollbar */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--color-bg-deep);
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--color-surface);
+  border-radius: 3px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--color-surface-hover);
+}
+
+/* Focus styles */
+*:focus-visible {
+  outline: 2px solid var(--color-primary);
+  outline-offset: 2px;
+}
+
+/* Touch target minimum size */
+button,
+a,
+input,
+select,
+textarea {
+  min-height: 44px;
+}
+
+/* Animations */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes slideUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes pulse-glow {
+
+  0%,
+  100% {
+    box-shadow: var(--glow-cyan);
+  }
+
+  50% {
+    box-shadow: var(--glow-cyan-strong);
+  }
+}
+
+.animate-fade-in {
+  animation: fadeIn 0.3s ease-out forwards;
+}
+
+.animate-slide-up {
+  animation: slideUp 0.4s ease-out forwards;
+}
+
+.animate-pulse-glow {
+  animation: pulse-glow 3s ease-in-out infinite;
+}
+
+/* Staggered animations */
+.stagger-1 {
+  animation-delay: 0.1s;
+  opacity: 0;
+}
+
+.stagger-2 {
+  animation-delay: 0.2s;
+  opacity: 0;
+}
+
+.stagger-3 {
+  animation-delay: 0.3s;
+  opacity: 0;
+}
+
+.stagger-4 {
+  animation-delay: 0.4s;
+  opacity: 0;
+}
 
 /* Safe area padding for mobile */
 .safe-area-bottom {
@@ -154,19 +398,54 @@ button, a, input, select, textarea {
   display: none;
 }
 
+/* Glass effect */
+.glass {
+  background: rgba(26, 26, 53, 0.6);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+}
+
+/* Status indicators */
+.status-pending {
+  color: var(--color-warning);
+}
+
+.status-approved {
+  color: var(--color-primary);
+}
+
+.status-deposited {
+  color: var(--color-secondary);
+}
+
+.status-matched {
+  color: var(--color-success);
+}
+
+.status-closed {
+  color: var(--color-text-muted);
+}
+
+.status-rejected {
+  color: var(--color-error);
+}
+
 /* Loading skeleton */
 .skeleton {
-  background: linear-gradient(
-    90deg,
-    var(--color-surface) 25%,
-    var(--color-surface-hover) 50%,
-    var(--color-surface) 75%
-  );
+  background: linear-gradient(90deg,
+      var(--color-surface) 25%,
+      var(--color-surface-hover) 50%,
+      var(--color-surface) 75%);
   background-size: 200% 100%;
   animation: skeleton-loading 1.5s infinite;
 }
 
 @keyframes skeleton-loading {
-  0% { background-position: 200% 0; }
-  100% { background-position: -200% 0; }
+  0% {
+    background-position: 200% 0;
+  }
+
+  100% {
+    background-position: -200% 0;
+  }
 }
