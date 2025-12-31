@@ -1,5 +1,6 @@
 import prisma from '@/lib/db/prisma';
 import { DeclarationStatus, ReportStatus, MatchStatus } from '@prisma/client';
+import { sendMatchNotification } from '@/lib/push/notifications';
 
 interface MatchResult {
     declarationId: string;
@@ -72,6 +73,9 @@ export async function findMatchesForReport(reportId: string): Promise<MatchResul
             where: { id: report.id },
             data: { status: ReportStatus.MATCHED },
         });
+
+        // Send push notification to the owner
+        sendMatchNotification(report.userId, declaration.docType).catch(console.error);
 
         matches.push(match);
     }
@@ -146,6 +150,9 @@ export async function findMatchesForDeclaration(declarationId: string): Promise<
             where: { id: declaration.id },
             data: { status: DeclarationStatus.MATCHED },
         });
+
+        // Send push notification to the owner
+        sendMatchNotification(report.userId, declaration.docType).catch(console.error);
 
         matches.push(match);
     }
