@@ -64,36 +64,50 @@ export async function POST(request: NextRequest) {
             }
         });
 
-        // In development, log the OTP
-        if (process.env.NODE_ENV === 'development') {
-            console.log(`[DEV] OTP for ${phone}: ${otp}`);
+        // Check if WhatsApp is configured
+        const isWhatsAppConfigured = !!(process.env.WHATSAPP_PHONE_NUMBER_ID && process.env.WHATSAPP_ACCESS_TOKEN);
+
+        // Log OTP in development or if WhatsApp is not configured
+        if (process.env.NODE_ENV === 'development' || !isWhatsAppConfigured) {
+            console.log(`[OTP] Code for ${phone}: ${otp}`);
         }
 
-        // Send OTP via WhatsApp
+        let whatsappResult: { success: boolean; messageId?: string; error?: string } = { success: false, messageId: 'demo-mode', error: '' };
+
+        // Only try WhatsApp if configured
+        if (isWhatsAppConfigured) {
+            const lang = language as 'fr' | 'en' | 'wo';
+            whatsappResult = await sendWhatsAppOTP(phone, otp, lang);
+
+            if (!whatsappResult.success) {
+                console.error('[OTP] WhatsApp send failed:', whatsappResult.error);
+            }
+        }
+
+        // Determine if we're in demo mode (WhatsApp not configured or failed)
+        const isDemoMode = !isWhatsAppConfigured || whatsappResult.messageId === 'demo-mode' || whatsappResult.messageId === 'dev-mode';
+
+        // Generate message based on mode
         const lang = language as 'fr' | 'en' | 'wo';
-        const whatsappResult = await sendWhatsAppOTP(phone, otp, lang);
-
-        if (!whatsappResult.success && process.env.NODE_ENV === 'production') {
-            console.error('[OTP] WhatsApp send failed:', whatsappResult.error);
-            // Don't fail the request - log warning and continue
-            // In production, you might want to fall back to SMS
-        }
-
-        // Generate message based on language and channel
-        const channel = whatsappResult.messageId !== 'dev-mode' ? 'WhatsApp' : 'SMS';
-        const messages = {
-            fr: `Code envoyé par ${channel}`,
-            wo: `Dañu yónnee code bi ${channel}`,
-            en: `Code sent via ${channel}`
-        };
+        const messages = isDemoMode
+            ? {
+                fr: `Mode démo - Votre code est affiché ci-dessous`,
+                wo: `Mode démo - Sa code bi ci suuf`,
+                en: `Demo mode - Your code is shown below`
+            }
+            : {
+                fr: `Code envoyé par WhatsApp`,
+                wo: `Dañu yónnee code bi WhatsApp`,
+                en: `Code sent via WhatsApp`
+            };
 
         return NextResponse.json({
             success: true,
             message: messages[lang] || messages.fr,
-            expiresIn: 300, // 5 minutes in seconds
+            expiresIn: 300,
             attemptsRemaining: rateLimitResult.remaining,
-            // Only include debug info in dev
-            ...(process.env.NODE_ENV === 'development' && { debug: { otp } })
+            // Include OTP in demo mode for testing
+            ...(isDemoMode && { demoCode: otp, isDemoMode: true })
         });
 
     } catch (error) {

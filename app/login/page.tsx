@@ -17,6 +17,7 @@ export default function LoginPage() {
     const [isLoading, setIsLoading] = useState(false);
     const [error, setError] = useState('');
     const [countdown, setCountdown] = useState(0);
+    const [demoCode, setDemoCode] = useState<string | null>(null);
 
     const handlePhoneSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
@@ -35,6 +36,11 @@ export default function LoginPage() {
             if (!response.ok) {
                 setError(data.message || 'Erreur lors de l\'envoi du code');
                 return;
+            }
+
+            // Check if we're in demo mode
+            if (data.isDemoMode && data.demoCode) {
+                setDemoCode(data.demoCode);
             }
 
             setStep('otp');
@@ -173,6 +179,17 @@ export default function LoginPage() {
                         </div>
 
                         <div className="space-y-6">
+                            {/* Demo mode banner */}
+                            {demoCode && (
+                                <Card className="bg-[#4361ee]/20 border border-[#4361ee]/50">
+                                    <CardContent className="p-4 text-center">
+                                        <p className="text-xs text-[#a0a0b9] mb-2">🧪 Mode démo - WhatsApp non configuré</p>
+                                        <p className="text-2xl font-bold text-[#4cc9f0] tracking-widest">{demoCode}</p>
+                                        <p className="text-xs text-[#6b6b80] mt-2">Copiez ce code ci-dessous</p>
+                                    </CardContent>
+                                </Card>
+                            )}
+
                             <OtpInput
                                 onComplete={handleOtpComplete}
                                 disabled={isLoading}
