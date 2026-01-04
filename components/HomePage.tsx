@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import { LanguageSwitcher } from '@/components/LanguageSwitcher';
+import { ThemeSwitcher } from '@/components/ThemeSwitcher';
 import { useTranslation } from '@/lib/i18n';
 
 interface Stats {
@@ -52,7 +53,10 @@ export default function HomePage() {
                         </div>
                         <span className="font-bold text-2xl gradient-text">{t('app.name')}</span>
                     </div>
-                    <LanguageSwitcher />
+                    <div className="flex items-center gap-2">
+                        <ThemeSwitcher />
+                        <LanguageSwitcher />
+                    </div>
                 </header>
 
                 {/* Main content */}

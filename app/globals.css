@@ -1,6 +1,7 @@
 @import "tailwindcss";
 
-:root {
+:root,
+[data-theme="dark"] {
   /* Cyberpunk theme colors */
   --color-primary: #00d9ff;
   --color-primary-dark: #00a8c7;
@@ -19,7 +20,19 @@
   --color-surface-hover: #252550;
   --color-text: #ffffff;
   --color-text-muted: #8888aa;
-  --color-text-disabled: #5555770;
+  --color-text-disabled: #555577;
+
+  /* Theme variables */
+  --bg: #0f0f23;
+  --bg-secondary: #1a1a35;
+  --card-bg: #1a1a35;
+  --border: #2a2a45;
+  --border-hover: #3a3a60;
+  --text: #ffffff;
+  --text-secondary: #a0a0b9;
+  --text-muted: #6b6b90;
+  --primary: #4361ee;
+  --primary-hover: #5a7cf7;
 
   /* Glow effects */
   --glow-cyan: 0 0 20px rgba(0, 217, 255, 0.4), 0 0 40px rgba(0, 217, 255, 0.2);
@@ -30,6 +43,34 @@
   --color-orange: #ff6b00;
   --color-free: #0066ff;
   --color-expresso: #009933;
+}
+
+[data-theme="light"] {
+  /* Light theme colors */
+  --color-bg: #f5f7fa;
+  --color-bg-deep: #e8ecf1;
+  --color-surface: #ffffff;
+  --color-surface-hover: #f0f2f5;
+  --color-text: #1a1a2e;
+  --color-text-muted: #6b7280;
+  --color-text-disabled: #9ca3af;
+
+  /* Theme variables */
+  --bg: #f5f7fa;
+  --bg-secondary: #ffffff;
+  --card-bg: #ffffff;
+  --border: #e5e7eb;
+  --border-hover: #d1d5db;
+  --text: #1a1a2e;
+  --text-secondary: #4b5563;
+  --text-muted: #9ca3af;
+  --primary: #4361ee;
+  --primary-hover: #3b52d4;
+
+  /* Adjusted glow for light mode */
+  --glow-cyan: 0 4px 12px rgba(0, 217, 255, 0.15);
+  --glow-purple: 0 4px 12px rgba(168, 85, 247, 0.15);
+  --glow-cyan-strong: 0 4px 20px rgba(0, 217, 255, 0.25);
 }
 
 html {
