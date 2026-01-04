@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
+import { StatusTimeline } from '@/components/Timeline';
 import { useTranslation } from '@/lib/i18n';
 
 interface Report {
@@ -135,7 +136,7 @@ export default function OwnerDashboard() {
                             return (
                                 <Card key={report.id} className="border-[#2a2a45] hover:border-[#4361ee]/50 transition-colors">
                                     <CardContent className="p-4">
-                                        <div className="flex items-center gap-4">
+                                        <div className="flex items-center gap-4 mb-3">
                                             <div className={`w-12 h-12 ${status.bg} rounded-xl flex items-center justify-center`}>
                                                 <span className="text-xl">{status.icon}</span>
                                             </div>
@@ -143,13 +144,19 @@ export default function OwnerDashboard() {
                                                 <p className="font-medium">{docTypeLabels[report.docType]}</p>
                                                 <p className={`text-sm ${status.color}`}>{status.label}</p>
                                             </div>
-                                            <svg className="w-5 h-5 text-[#6b6b90]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-                                            </svg>
+                                            <Link href="/profile" className="text-[#6b6b90] hover:text-[#4361ee] transition-colors">
+                                                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                                                </svg>
+                                            </Link>
                                         </div>
-                                        <p className="text-xs text-[#6b6b90] mt-2">
-                                            Signalé le {new Date(report.createdAt).toLocaleDateString('fr-FR')}
-                                        </p>
+                                        {/* Timeline */}
+                                        <div className="mt-3 pt-3 border-t border-[#2a2a45]">
+                                            <StatusTimeline
+                                                status={report.status}
+                                                dates={{ created: new Date(report.createdAt).toLocaleDateString('fr-FR') }}
+                                            />
+                                        </div>
                                     </CardContent>
                                 </Card>
                             );

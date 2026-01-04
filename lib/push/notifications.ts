@@ -1,5 +1,5 @@
 import webpush from 'web-push';
-import prisma from '@/lib/db/prisma';
+import { prisma } from '@/lib/db/prisma';
 
 // Configure web-push with VAPID keys
 const VAPID_PUBLIC_KEY = process.env.NEXT_PUBLIC_VAPID_PUBLIC_KEY || '';
@@ -9,6 +9,52 @@ const VAPID_SUBJECT = process.env.VAPID_SUBJECT || 'mailto:contact@troov.sn';
 if (VAPID_PUBLIC_KEY && VAPID_PRIVATE_KEY) {
     webpush.setVapidDetails(VAPID_SUBJECT, VAPID_PUBLIC_KEY, VAPID_PRIVATE_KEY);
 }
+
+// Notification templates
+export const NOTIFICATION_TEMPLATES = {
+    MATCH_FOUND: {
+        title: '🎉 Bonne nouvelle !',
+        getBody: (docType: string) =>
+            `Votre ${docType === 'CNI' ? 'carte d\'identité' : 'passeport'} a peut-être été trouvé !`,
+        tag: 'match-notification',
+        url: '/owner',
+    },
+    PICKUP_REMINDER: {
+        title: '⏰ N\'oubliez pas !',
+        getBody: (location: string) =>
+            `Votre document vous attend au point de dépôt: ${location}`,
+        tag: 'pickup-reminder',
+        url: '/owner',
+    },
+    EXPIRATION_WARNING: {
+        title: '⚠️ Attention',
+        getBody: (days: number) =>
+            `Il vous reste ${days} jours pour récupérer votre document`,
+        tag: 'expiration-warning',
+        url: '/owner',
+    },
+    POINTS_EARNED: {
+        title: '⭐ Félicitations !',
+        getBody: (points: number, reason: string) =>
+            `Vous avez gagné ${points} points pour: ${reason}`,
+        tag: 'points-notification',
+        url: '/profile',
+    },
+    BADGE_UNLOCKED: {
+        title: '🏅 Nouveau badge !',
+        getBody: (badgeName: string) =>
+            `Vous avez débloqué le badge "${badgeName}"`,
+        tag: 'badge-notification',
+        url: '/profile',
+    },
+    LEVEL_UP: {
+        title: '🚀 Niveau supérieur !',
+        getBody: (level: number) =>
+            `Félicitations ! Vous êtes maintenant niveau ${level}`,
+        tag: 'level-notification',
+        url: '/profile',
+    },
+} as const;
 
 interface NotificationPayload {
     title: string;
@@ -88,22 +134,119 @@ export async function sendPushNotification(
  * Send match notification to document owner
  */
 export async function sendMatchNotification(userId: string, docType: string): Promise<void> {
+    const template = NOTIFICATION_TEMPLATES.MATCH_FOUND;
     await sendPushNotification(userId, {
-        title: '🎉 Bonne nouvelle !',
-        body: `Votre ${docType === 'CNI' ? 'carte d\'identité' : 'passeport'} a peut-être été trouvé !`,
-        tag: 'match-notification',
-        data: { url: '/owner' },
+        title: template.title,
+        body: template.getBody(docType),
+        tag: template.tag,
+        data: { url: template.url },
+        actions: [{ action: 'view', title: 'Voir' }]
+    });
+}
+
+/**
+ * Send pickup reminder (48h after match)
+ */
+export async function sendPickupReminder(userId: string, location: string): Promise<void> {
+    const template = NOTIFICATION_TEMPLATES.PICKUP_REMINDER;
+    await sendPushNotification(userId, {
+        title: template.title,
+        body: template.getBody(location),
+        tag: template.tag,
+        data: { url: template.url },
         actions: [
-            { action: 'view', title: 'Voir' }
+            { action: 'view', title: 'Voir détails' },
+            { action: 'navigate', title: 'Itinéraire' }
         ]
     });
 }
 
 /**
- * Send deposit reminder to finder
+ * Send expiration warning
  */
-export async function sendDepositReminder(trackingCode: string): Promise<void> {
-    // For anonymous declarations, we can't send push notifications
-    // This would require storing a subscription at declaration time
-    console.log(`[Push] Deposit reminder for ${trackingCode} - skipped (no user)`);
+export async function sendExpirationWarning(userId: string, daysLeft: number): Promise<void> {
+    const template = NOTIFICATION_TEMPLATES.EXPIRATION_WARNING;
+    await sendPushNotification(userId, {
+        title: template.title,
+        body: template.getBody(daysLeft),
+        tag: template.tag,
+        data: { url: template.url, urgent: daysLeft <= 3 },
+    });
 }
+
+/**
+ * Send points earned notification
+ */
+export async function sendPointsNotification(userId: string, points: number, reason: string): Promise<void> {
+    const template = NOTIFICATION_TEMPLATES.POINTS_EARNED;
+    await sendPushNotification(userId, {
+        title: template.title,
+        body: template.getBody(points, reason),
+        tag: template.tag,
+        data: { url: template.url, points },
+    });
+}
+
+/**
+ * Send badge unlocked notification
+ */
+export async function sendBadgeNotification(userId: string, badgeName: string): Promise<void> {
+    const template = NOTIFICATION_TEMPLATES.BADGE_UNLOCKED;
+    await sendPushNotification(userId, {
+        title: template.title,
+        body: template.getBody(badgeName),
+        tag: template.tag,
+        data: { url: template.url },
+    });
+}
+
+/**
+ * Send level up notification
+ */
+export async function sendLevelUpNotification(userId: string, newLevel: number): Promise<void> {
+    const template = NOTIFICATION_TEMPLATES.LEVEL_UP;
+    await sendPushNotification(userId, {
+        title: template.title,
+        body: template.getBody(newLevel),
+        tag: template.tag,
+        data: { url: template.url, level: newLevel },
+    });
+}
+
+/**
+ * Check for pending pickup reminders (called by cron)
+ */
+export async function checkPendingReminders(): Promise<{ sent: number }> {
+    // Find matches older than 48h that haven't been picked up
+    const twoDaysAgo = new Date(Date.now() - 48 * 60 * 60 * 1000);
+
+    const pendingMatches = await prisma.match.findMany({
+        where: {
+            status: 'CONFIRMED',
+            matchedAt: { lt: twoDaysAgo },
+        },
+        include: {
+            report: {
+                include: { user: true }
+            },
+            declaration: {
+                include: { depositPoint: true }
+            }
+        },
+        take: 50, // Limit to prevent overwhelming
+    });
+
+    let sent = 0;
+    for (const match of pendingMatches) {
+        if (match.declaration.depositPoint) {
+            await sendPickupReminder(
+                match.report.userId,
+                match.declaration.depositPoint.name
+            );
+            sent++;
+        }
+    }
+
+    return { sent };
+}
+

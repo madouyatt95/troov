@@ -57,6 +57,13 @@ model User {
   language      String    @default("fr")
   createdAt     DateTime  @default(now()) @map("created_at")
   lastLogin     DateTime? @map("last_login")
+  
+  // Gamification
+  badges        String[]  @default([])
+  points        Int       @default(0)
+  level         Int       @default(1)
+  declarationsCount Int   @default(0) @map("declarations_count")
+  hasSeenOnboarding Boolean @default(false) @map("has_seen_onboarding")
 
   ownerReports OwnerReport[]
   agent        Agent?

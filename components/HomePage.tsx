@@ -1,12 +1,38 @@
 'use client';
 
+import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import { LanguageSwitcher } from '@/components/LanguageSwitcher';
 import { useTranslation } from '@/lib/i18n';
 
+interface Stats {
+    documentsRecovered: number;
+    activeSearches: number;
+    matchRate: number;
+}
+
 export default function HomePage() {
     const { t } = useTranslation();
+    const [stats, setStats] = useState<Stats | null>(null);
+    const [isLoadingStats, setIsLoadingStats] = useState(true);
+
+    useEffect(() => {
+        const fetchStats = async () => {
+            try {
+                const response = await fetch('/api/stats');
+                if (response.ok) {
+                    const data = await response.json();
+                    setStats(data);
+                }
+            } catch (error) {
+                console.error('Failed to fetch stats:', error);
+            } finally {
+                setIsLoadingStats(false);
+            }
+        };
+        fetchStats();
+    }, []);
 
     return (
         <>
@@ -114,7 +140,13 @@ export default function HomePage() {
                 {/* Stats bar */}
                 <div className="px-6 mb-6 animate-fade-in stagger-4">
                     <div className="stats-bar flex items-center justify-center gap-2">
-                        <span className="stats-number">1,247</span>
+                        {isLoadingStats ? (
+                            <div className="w-16 h-6 bg-[#2a2a45] rounded animate-pulse" />
+                        ) : (
+                            <span className="stats-number">
+                                {stats?.documentsRecovered?.toLocaleString('fr-FR') || '0'}
+                            </span>
+                        )}
                         <span className="text-[#8888aa]">{t('home.stats') || 'documents retrouvés'}</span>
                     </div>
                 </div>
