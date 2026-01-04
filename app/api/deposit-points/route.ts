@@ -16,7 +16,11 @@ export async function GET(request: NextRequest) {
         };
 
         if (region) {
-            whereClause.region = region;
+            // Case-insensitive region matching (handles DAKAR vs Dakar)
+            whereClause.region = {
+                contains: region.replace('_', ' '),
+                mode: 'insensitive'
+            };
         }
 
         let depositPoints = await prisma.depositPoint.findMany({
