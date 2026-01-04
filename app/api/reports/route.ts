@@ -32,7 +32,8 @@ export async function GET(request: NextRequest) {
                 docType: r.docType,
                 status: r.status,
                 createdAt: r.createdAt.toISOString(),
-                matchCount: r.matches.length
+                matchCount: r.matches.length,
+                matchId: r.matches.length > 0 ? r.matches[0].id : null,
             }))
         });
     } catch (error) {

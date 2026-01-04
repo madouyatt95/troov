@@ -13,6 +13,7 @@ interface Report {
     status: 'SEARCHING' | 'MATCHED' | 'RECOVERED' | 'CANCELLED';
     createdAt: string;
     matchCount?: number;
+    matchId?: string | null;
 }
 
 const statusConfig = {
@@ -134,7 +135,7 @@ export default function OwnerDashboard() {
                         {reports.map((report) => {
                             const status = statusConfig[report.status];
                             return (
-                                <Card key={report.id} className="border-[#2a2a45] hover:border-[#4361ee]/50 transition-colors">
+                                <Card key={report.id} className={`border-[#2a2a45] hover:border-[#4361ee]/50 transition-colors ${report.status === 'MATCHED' ? 'border-[#4ade80]/50 bg-[#4ade80]/5' : ''}`}>
                                     <CardContent className="p-4">
                                         <div className="flex items-center gap-4 mb-3">
                                             <div className={`w-12 h-12 ${status.bg} rounded-xl flex items-center justify-center`}>
@@ -144,11 +145,15 @@ export default function OwnerDashboard() {
                                                 <p className="font-medium">{docTypeLabels[report.docType]}</p>
                                                 <p className={`text-sm ${status.color}`}>{status.label}</p>
                                             </div>
-                                            <Link href="/profile" className="text-[#6b6b90] hover:text-[#4361ee] transition-colors">
-                                                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            {report.status === 'MATCHED' && report.matchId ? (
+                                                <Link href={`/owner/match/${report.matchId}`} className="px-3 py-1.5 bg-[#4ade80] text-black text-sm font-medium rounded-lg hover:bg-[#22c55e] transition-colors">
+                                                    Voir →
+                                                </Link>
+                                            ) : (
+                                                <svg className="w-5 h-5 text-[#6b6b90]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
                                                 </svg>
-                                            </Link>
+                                            )}
                                         </div>
                                         {/* Timeline */}
                                         <div className="mt-3 pt-3 border-t border-[#2a2a45]">
