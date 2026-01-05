@@ -61,6 +61,28 @@ export async function POST(request: NextRequest) {
             );
         }
 
+        // Check for max pending declarations per IP (anti-abuse)
+        const MAX_PENDING_PER_IP = 3;
+        const pendingCount = await prisma.declaration.count({
+            where: {
+                ipAddress: ip,
+                status: 'PENDING',
+                expiresAt: { gt: new Date() } // Only count non-expired
+            }
+        });
+
+        if (pendingCount >= MAX_PENDING_PER_IP) {
+            return NextResponse.json(
+                {
+                    success: false,
+                    error: 'PENDING_LIMIT_REACHED',
+                    message: `Vous avez déjà ${MAX_PENDING_PER_IP} déclarations en attente. Déposez vos documents avant d'en déclarer d'autres.`,
+                    pendingCount
+                },
+                { status: 429 }
+            );
+        }
+
         // Verify deposit point exists
         const depositPoint = await prisma.depositPoint.findUnique({
             where: { id: depositPointId, isActive: true }
