@@ -186,9 +186,9 @@ function normalizePhoneNumber(phone: string): string {
  */
 export function getOtpMessage(otp: string, language: 'fr' | 'en' | 'wo' = 'fr'): string {
     const messages = {
-        fr: `Votre code Troov est : ${otp}\nIl expire dans 5 minutes.\nNe partagez ce code avec personne.`,
-        en: `Your Troov code is: ${otp}\nIt expires in 5 minutes.\nDo not share this code with anyone.`,
-        wo: `Sa code Troov mooy: ${otp}\nDi nëpp ci 5 simili.\nBul ko jox keneen.`,
+        fr: `Votre code SenDocu est : ${otp}\nIl expire dans 5 minutes.\nNe partagez ce code avec personne.`,
+        en: `Your SenDocu code is: ${otp}\nIt expires in 5 minutes.\nDo not share this code with anyone.`,
+        wo: `Sa code SenDocu mooy: ${otp}\nDi nëpp ci 5 simili.\nBul ko jox keneen.`,
     };
 
     return messages[language];

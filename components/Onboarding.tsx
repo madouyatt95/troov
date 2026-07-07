@@ -10,7 +10,7 @@ interface OnboardingProps {
 const SLIDES = [
     {
         icon: '🎯',
-        title: 'Bienvenue sur Troov',
+        title: 'Bienvenue sur SenDocu',
         description: 'La plateforme qui relie les personnes qui trouvent des documents à celles qui les ont perdus.',
         highlight: 'Simple, sécurisé, gratuit.',
     },

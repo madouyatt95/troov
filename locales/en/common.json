@@ -1,6 +1,6 @@
 {
     "app": {
-        "name": "Troov",
+        "name": "SenDocu",
         "tagline": "Find your documents safely"
     },
     "common": {
@@ -15,7 +15,7 @@
         "close": "Close"
     },
     "home": {
-        "title": "Welcome to Troov",
+        "title": "Welcome to SenDocu",
         "subtitle": "The app to find your lost CNI and passports",
         "finder": {
             "title": "I FOUND a document",
@@ -50,7 +50,7 @@
         },
         "login": "Sign in",
         "logout": "Sign out",
-        "welcome": "Welcome to Troov!",
+        "welcome": "Welcome to SenDocu!",
         "accountCreated": "Account created successfully"
     },
     "finder": {
@@ -146,7 +146,7 @@
     "status": {
         "title": "Track declaration",
         "label": "Tracking code",
-        "placeholder": "TRV-2024-XXXXXX",
+        "placeholder": "SDC-2026-XXXXXX",
         "search": "Search",
         "result": {
             "status": "Status",
@@ -175,7 +175,7 @@
     "security": {
         "badge": "Protected data",
         "encrypted": "Encrypted immediately",
-        "neverShare": "Never share this code. Troov will never ask for it by phone."
+        "neverShare": "Never share this code. SenDocu will never ask for it by phone."
     },
     "regions": {
         "DAKAR": "Dakar",

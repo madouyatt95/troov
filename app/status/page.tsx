@@ -114,7 +114,7 @@ export default function StatusPage() {
                             type="text"
                             value={trackingCode}
                             onChange={e => setTrackingCode(e.target.value.toUpperCase())}
-                            placeholder="TRV-2024-XXXXXX"
+                            placeholder="SDC-2026-XXXXXX"
                             className="text-center font-mono"
                         />
                         <Button type="submit" className="w-full" isLoading={isLoading}>

@@ -1,31 +1,25 @@
 import type { Metadata, Viewport } from "next";
-import { Inter } from 'next/font/google';
 import "./globals.css";
 
-const inter = Inter({
-  subsets: ['latin'],
-  variable: '--font-inter',
-});
-
 export const metadata: Metadata = {
-  title: "Troov - Retrouvez vos documents",
-  description: "Application pour retrouver CNI et passeports perdus au Sénégal en toute sécurité",
+  title: "SenDocu - Retrouvez vos documents",
+  description: "La plateforme sénégalaise sécurisée pour retrouver les documents perdus",
   manifest: "/manifest.json",
   appleWebApp: {
     capable: true,
     statusBarStyle: "black-translucent",
-    title: "Troov",
+    title: "SenDocu",
   },
   openGraph: {
-    title: "Troov",
-    description: "Retrouvez vos documents en toute sécurité",
+    title: "SenDocu",
+    description: "Un document perdu ne doit plus disparaître.",
     type: "website",
     locale: "fr_SN",
   },
 };
 
 export const viewport: Viewport = {
-  themeColor: "#1a1a2e",
+  themeColor: "#07111f",
   width: "device-width",
   initialScale: 1,
   maximumScale: 1,
@@ -45,7 +39,7 @@ export default function RootLayout({
         <link rel="apple-touch-icon" href="/icons/icon-192.png" />
         <meta name="apple-mobile-web-app-capable" content="yes" />
       </head>
-      <body className={`${inter.variable} font-sans antialiased`}>
+      <body className="font-sans antialiased">
         <div className="min-h-screen min-h-dvh flex flex-col">
           {children}
         </div>

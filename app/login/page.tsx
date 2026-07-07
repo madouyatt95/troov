@@ -116,7 +116,7 @@ export default function LoginPage() {
                 {step === 'phone' ? (
                     <form onSubmit={handlePhoneSubmit} className="w-full max-w-md mx-auto animate-fade-in">
                         <div className="text-center mb-8">
-                            <h2 className="text-2xl font-bold mb-2">Créer votre compte Troov</h2>
+                            <h2 className="text-2xl font-bold mb-2">Créer votre compte SenDocu</h2>
                             <p className="text-[#a0a0b9]">Ou connectez-vous si vous en avez déjà un</p>
                         </div>
 
@@ -226,7 +226,7 @@ export default function LoginPage() {
                         <div className="mt-8 text-center">
                             <p className="text-xs text-[#6b6b80] flex items-center justify-center gap-1">
                                 <span className="text-[#4ade80]">🔒</span>
-                                Ne partagez jamais ce code. Troov ne vous le demandera jamais par téléphone.
+                                Ne partagez jamais ce code. SenDocu ne vous le demandera jamais par téléphone.
                             </p>
                         </div>
                     </div>

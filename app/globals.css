@@ -87,6 +87,107 @@ body {
   overflow-x: hidden;
 }
 
+.sen-app {
+  position: relative;
+  background:
+    radial-gradient(circle at 78% 0%, rgba(39, 255, 77, 0.10), transparent 26%),
+    radial-gradient(circle at 18% 8%, rgba(45, 130, 255, 0.11), transparent 28%),
+    linear-gradient(180deg, #020a16 0%, #061120 48%, #030a14 100%);
+}
+
+.sen-card,
+.sen-card-mini {
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  background:
+    linear-gradient(145deg, rgba(17, 30, 52, 0.94), rgba(7, 17, 31, 0.96)),
+    rgba(255, 255, 255, 0.04);
+  border-radius: 18px;
+  box-shadow: 0 24px 70px rgba(0, 0, 0, 0.32), inset 0 1px 0 rgba(255, 255, 255, 0.08);
+  backdrop-filter: blur(22px);
+  -webkit-backdrop-filter: blur(22px);
+}
+
+.sen-card-mini {
+  border-radius: 14px;
+}
+
+.sen-orb {
+  pointer-events: none;
+  position: fixed;
+  z-index: 0;
+  border-radius: 999px;
+  filter: blur(54px);
+}
+
+.sen-orb-green {
+  right: max(-70px, calc((100vw - 448px) / 2 - 70px));
+  top: 90px;
+  height: 170px;
+  width: 170px;
+  background: rgba(52, 245, 139, 0.14);
+}
+
+.sen-orb-blue {
+  left: max(-80px, calc((100vw - 448px) / 2 - 80px));
+  top: 370px;
+  height: 220px;
+  width: 220px;
+  background: rgba(83, 169, 255, 0.12);
+}
+
+.sen-input,
+.sen-select,
+.sen-textarea {
+  width: 100%;
+  border-radius: 20px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  background: rgba(255, 255, 255, 0.055);
+  color: white;
+  outline: none;
+  transition: border-color 160ms ease, box-shadow 160ms ease, background 160ms ease;
+}
+
+.sen-input,
+.sen-select {
+  height: 46px;
+  padding: 0 13px;
+}
+
+.sen-textarea {
+  min-height: 92px;
+  padding: 14px 16px;
+}
+
+.sen-input::placeholder,
+.sen-textarea::placeholder {
+  color: #62758d;
+}
+
+.sen-input:focus,
+.sen-select:focus,
+.sen-textarea:focus {
+  border-color: rgba(52, 245, 139, 0.55);
+  background: rgba(255, 255, 255, 0.075);
+  box-shadow: 0 0 0 4px rgba(52, 245, 139, 0.11);
+}
+
+.sen-action {
+  display: inline-flex;
+  min-height: 46px;
+  align-items: center;
+  justify-content: center;
+  border-radius: 12px;
+  background: linear-gradient(90deg, #24e943, #24d942);
+  color: #04111d;
+  font-weight: 900;
+  box-shadow: 0 14px 34px rgba(52, 245, 139, 0.28);
+  transition: transform 160ms ease, filter 160ms ease;
+}
+
+.sen-action:active {
+  transform: scale(0.98);
+}
+
 /* Animated gradient orbs background */
 .orb-container {
   position: fixed;

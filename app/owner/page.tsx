@@ -5,7 +5,6 @@ import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { StatusTimeline } from '@/components/Timeline';
-import { useTranslation } from '@/lib/i18n';
 
 interface Report {
     id: string;
@@ -29,7 +28,6 @@ const docTypeLabels = {
 };
 
 export default function OwnerDashboard() {
-    const { t } = useTranslation();
     const [reports, setReports] = useState<Report[]>([]);
     const [isLoading, setIsLoading] = useState(true);
     const [error, setError] = useState('');
@@ -123,7 +121,7 @@ export default function OwnerDashboard() {
                         </div>
                         <h3 className="font-semibold mb-2">Aucun signalement</h3>
                         <p className="text-sm text-[#a0a0b9] mb-6">
-                            Vous n'avez pas encore signalé de document perdu
+                            Vous n&apos;avez pas encore signalé de document perdu
                         </p>
                     </div>
                 )}

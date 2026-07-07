@@ -81,11 +81,11 @@ export function verifyHash(
   );
 }
 
-// Generate tracking code (TRV-YYYY-XXXXXX)
+// Generate tracking code (SDC-YYYY-XXXXXX)
 export function generateTrackingCode(): string {
   const year = new Date().getFullYear();
   const random = crypto.randomBytes(3).toString('hex').toUpperCase();
-  return `TRV-${year}-${random}`;
+  return `SDC-${year}-${random}`;
 }
 
 // Generate 6-digit OTP

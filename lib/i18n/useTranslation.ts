@@ -6,10 +6,10 @@ import { useLanguageStore, Locale } from './store';
 const translations: Record<Locale, Record<string, string>> = {
     fr: {
         // Header
-        'app.name': 'TROOV',
+        'app.name': 'SenDocu',
 
         // Homepage
-        'home.welcome': 'Bienvenue sur Troov',
+        'home.welcome': 'Bienvenue sur SenDocu',
         'home.tagline': 'Retrouvez vos documents en toute sécurité',
         'home.found': "J'ai TROUVÉ un document",
         'home.found.sub': 'Déclarer sans inscription',
@@ -70,10 +70,10 @@ const translations: Record<Locale, Record<string, string>> = {
 
     wo: {
         // Header
-        'app.name': 'TROOV',
+        'app.name': 'SenDocu',
 
         // Homepage
-        'home.welcome': 'Dalal jàmm ci Troov',
+        'home.welcome': 'Dalal jàmm ci SenDocu',
         'home.tagline': 'Jàppale sa kaayit yi ci kaarange',
         'home.found': 'Gis naa ab kaayit',
         'home.found.sub': 'Bind te binduwul',
@@ -134,10 +134,10 @@ const translations: Record<Locale, Record<string, string>> = {
 
     en: {
         // Header
-        'app.name': 'TROOV',
+        'app.name': 'SenDocu',
 
         // Homepage
-        'home.welcome': 'Welcome to Troov',
+        'home.welcome': 'Welcome to SenDocu',
         'home.tagline': 'Recover your documents safely',
         'home.found': 'I FOUND a document',
         'home.found.sub': 'Declare without registration',

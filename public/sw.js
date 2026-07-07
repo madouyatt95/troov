@@ -1,4 +1,4 @@
-// Troov Service Worker for Push Notifications
+// SenDocu Service Worker for Push Notifications
 const CACHE_NAME = 'troov-v1';
 
 // Install event
@@ -18,7 +18,7 @@ self.addEventListener('push', (event) => {
     console.log('[SW] Push received:', event);
 
     let data = {
-        title: 'Troov',
+        title: 'SenDocu',
         body: 'Vous avez une nouvelle notification',
         icon: '/icon-512.png',
         badge: '/icon-512.png',

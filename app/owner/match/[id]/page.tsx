@@ -237,7 +237,7 @@ export default function MatchDetailsPage({ params }: { params: Promise<{ id: str
                         if (navigator.share) {
                             navigator.share({
                                 title: 'Mon document a été retrouvé !',
-                                text: `Mon ${match.docType === 'CNI' ? 'CNI' : 'passeport'} a été retrouvé grâce à Troov !`,
+                                text: `Mon ${match.docType === 'CNI' ? 'CNI' : 'passeport'} a été retrouvé grâce à SenDocu !`,
                                 url: window.location.origin,
                             });
                         }

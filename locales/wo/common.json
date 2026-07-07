@@ -1,6 +1,6 @@
 {
     "app": {
-        "name": "Troov",
+        "name": "SenDocu",
         "tagline": "Gis sa kaayit ci kaarange"
     },
     "common": {
@@ -15,7 +15,7 @@
         "close": "Tëj"
     },
     "home": {
-        "title": "Dalal jàmm ci Troov",
+        "title": "Dalal jàmm ci SenDocu",
         "subtitle": "App bi ngir gis sa CNI ak passeport yu ñu ñàkk",
         "finder": {
             "title": "GISUMA kaayit",
@@ -50,7 +50,7 @@
         },
         "login": "Dugg",
         "logout": "Génn",
-        "welcome": "Dalal jàmm Troov!",
+        "welcome": "Dalal jàmm SenDocu!",
         "accountCreated": "Compte bi dafa sos"
     },
     "finder": {
@@ -146,7 +146,7 @@
     "status": {
         "title": "Xool waxtaan",
         "label": "Code suivi",
-        "placeholder": "TRV-2024-XXXXXX",
+        "placeholder": "SDC-2026-XXXXXX",
         "search": "Wut",
         "result": {
             "status": "Statut",
@@ -175,7 +175,7 @@
     "security": {
         "badge": "Njàng yu aar",
         "encrypted": "Ñëbb nañu ko",
-        "neverShare": "Bul ko jox keneen. Troov du la laaj telefon."
+        "neverShare": "Bul ko jox keneen. SenDocu du la laaj telefon."
     },
     "regions": {
         "DAKAR": "Dakar",
