@@ -133,7 +133,9 @@ export function checkBadges(
 /**
  * Award points to a user and update their level
  */
-export async function awardPoints(userId: string, points: number, reason: keyof typeof POINTS) {
+export async function awardPoints(userId: string, points: number, _reason: keyof typeof POINTS) {
+    void _reason;
+
     const user = await prisma.user.findUnique({
         where: { id: userId },
         select: { points: true, badges: true, declarationsCount: true, trustScore: true },

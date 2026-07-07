@@ -2,7 +2,7 @@
 const CACHE_NAME = 'sendocu-v2';
 
 // Install event
-self.addEventListener('install', (event) => {
+self.addEventListener('install', () => {
     console.log('[SW] Installing service worker...');
     self.skipWaiting();
 });
@@ -38,7 +38,7 @@ self.addEventListener('push', (event) => {
         try {
             const payload = event.data.json();
             data = { ...data, ...payload };
-        } catch (e) {
+        } catch {
             data.body = event.data.text();
         }
     }

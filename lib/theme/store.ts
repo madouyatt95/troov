@@ -13,7 +13,7 @@ export const useThemeStore = create<ThemeState>((set, get) => ({
     setTheme: (theme) => {
         set({ theme });
         if (typeof window !== 'undefined') {
-            localStorage.setItem('troov_theme', theme);
+            localStorage.setItem('sendocu_theme', theme);
             document.documentElement.setAttribute('data-theme', theme);
         }
     },
@@ -27,7 +27,7 @@ export const useThemeStore = create<ThemeState>((set, get) => ({
 export function initializeTheme() {
     if (typeof window === 'undefined') return;
 
-    const stored = localStorage.getItem('troov_theme') as Theme | null;
+    const stored = localStorage.getItem('sendocu_theme') as Theme | null;
     const systemPrefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
     const theme = stored || (systemPrefersDark ? 'dark' : 'light');
 

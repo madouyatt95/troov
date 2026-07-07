@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { SenDocuLogo } from '@/components/SenDocuLogo';
 import { SenDocuShell } from '@/components/SenDocuShell';
+import { SenIcon } from '@/components/SenIcon';
 
 const timeline = ['Déclaré', 'Reçu', 'Vérifié', 'Retrouvé', 'Retrait'];
 
@@ -50,7 +51,7 @@ export default function HomePage() {
                 <Link href="/profile" className="grid h-9 w-9 place-items-center rounded-xl text-2xl text-[#a8b5c8]">≡</Link>
                 <SenDocuLogo />
                 <Link href="/messages" className="relative grid h-9 w-9 place-items-center rounded-xl text-xl">
-                    🔔
+                    <SenIcon name="message" className="h-5 w-5 text-[#a8b5c8]" />
                     {stats && stats.pendingDeclarations > 0 && (
                         <span className="absolute right-1.5 top-1 h-4 min-w-4 rounded-full bg-[#f3c316] px-1 text-center text-[9px] font-black leading-4 text-[#07111f]">
                             {Math.min(stats.pendingDeclarations, 9)}
@@ -80,7 +81,9 @@ export default function HomePage() {
                                 <div className="mt-4 h-1.5 w-12 rounded bg-white/40" />
                                 <div className="mt-2 h-1.5 w-9 rounded bg-white/25" />
                             </div>
-                            <div className="absolute bottom-1 right-0 grid h-9 w-9 place-items-center rounded-full bg-[#34f58b] text-lg shadow-[0_0_26px_rgba(52,245,139,0.55)]">🛡️</div>
+                            <div className="absolute bottom-1 right-0 grid h-9 w-9 place-items-center rounded-full bg-[#34f58b] text-[#04111d] shadow-[0_0_26px_rgba(52,245,139,0.55)]">
+                                <SenIcon name="shield" className="h-5 w-5" />
+                            </div>
                         </div>
                     </div>
                     <div className="mt-4 inline-flex h-10 w-40 items-center justify-center rounded-xl bg-[#24e943] text-[12px] font-black text-[#04111d] shadow-[0_12px_35px_rgba(52,245,139,0.28)]">

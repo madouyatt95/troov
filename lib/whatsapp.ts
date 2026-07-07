@@ -49,7 +49,7 @@ export async function sendWhatsAppOTP(
                     to: normalizedPhone,
                     type: 'template',
                     template: {
-                        name: 'troov_otp', // You'll need to create this template in Meta Business
+                        name: 'sendocu_otp', // Create this template in Meta Business
                         language: {
                             code: language === 'wo' ? 'fr' : language, // Wolof falls back to French
                         },
@@ -147,7 +147,7 @@ export async function sendWhatsAppText(
         } else {
             return { success: false, error: data.error?.message };
         }
-    } catch (error) {
+    } catch {
         return { success: false, error: 'Network error' };
     }
 }

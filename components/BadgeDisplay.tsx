@@ -1,6 +1,6 @@
 'use client';
 
-import { getBadgeById, BADGES } from '@/lib/gamification';
+import { BADGES } from '@/lib/gamification';
 
 interface BadgeDisplayProps {
     badges: string[];

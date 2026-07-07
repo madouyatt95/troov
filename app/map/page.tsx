@@ -15,9 +15,11 @@ type DepositPoint = {
     lat: number;
     lng: number;
     distance?: number;
+    isOpen?: boolean | null;
+    serviceLabel?: string;
 };
 
-const filters = ['Tous', 'ADMIN', 'OPERATOR_SHOP'];
+const filters = ['Tous', 'ADMIN', 'CITY_HALL', 'POLICE', 'PARTNER'];
 
 function markerPosition(point: DepositPoint) {
     const minLat = 12.0;
@@ -35,24 +37,50 @@ export default function MapPage() {
     const [filter, setFilter] = useState('Tous');
     const [isLoading, setIsLoading] = useState(true);
     const [error, setError] = useState('');
+    const [userPosition, setUserPosition] = useState<{ lat: number; lng: number } | null>(null);
 
     useEffect(() => {
-        fetch('/api/deposit-points?limit=50')
-            .then((response) => {
-                if (!response.ok) throw new Error('Impossible de charger les points');
-                return response.json();
-            })
-            .then((data) => {
-                const loadedPoints = data.depositPoints || [];
-                setPoints(loadedPoints);
-                setSelectedId(loadedPoints[0]?.id || null);
-            })
-            .catch(() => setError('Impossible de charger les points de dépôt'))
-            .finally(() => setIsLoading(false));
+        const loadPoints = (coords?: { lat: number; lng: number }) => {
+            const query = coords
+                ? `/api/deposit-points?limit=50&lat=${coords.lat}&lng=${coords.lng}`
+                : '/api/deposit-points?limit=50';
+
+            fetch(query)
+                .then((response) => {
+                    if (!response.ok) throw new Error('Impossible de charger les points');
+                    return response.json();
+                })
+                .then((data) => {
+                    const loadedPoints = data.depositPoints || [];
+                    setPoints(loadedPoints);
+                    setSelectedId(loadedPoints[0]?.id || null);
+                })
+                .catch(() => setError('Impossible de charger les points de dépôt'))
+                .finally(() => setIsLoading(false));
+        };
+
+        if ('geolocation' in navigator) {
+            navigator.geolocation.getCurrentPosition(
+                (position) => {
+                    const coords = {
+                        lat: position.coords.latitude,
+                        lng: position.coords.longitude,
+                    };
+                    setUserPosition(coords);
+                    loadPoints(coords);
+                },
+                () => loadPoints(),
+                { enableHighAccuracy: false, timeout: 5000, maximumAge: 600000 }
+            );
+            return;
+        }
+
+        loadPoints();
     }, []);
 
     const filteredPoints = useMemo(() => {
         if (filter === 'Tous') return points;
+        if (filter === 'PARTNER') return points.filter((point) => ['PARTNER', 'OPERATOR_SHOP'].includes(point.type));
         return points.filter((point) => point.type === filter);
     }, [filter, points]);
 
@@ -73,7 +101,7 @@ export default function MapPage() {
                         onClick={() => setFilter(item)}
                         className={`shrink-0 rounded-full px-4 py-2 text-sm font-bold ${filter === item ? 'bg-[#34f58b] text-[#04111d]' : 'border border-white/10 bg-white/[0.05] text-[#9aacbf]'}`}
                     >
-                        {item === 'Tous' ? 'Tous' : item === 'ADMIN' ? 'Commissariat / Mairie' : 'Partenaire'}
+                        {item === 'Tous' ? 'Tous' : item === 'ADMIN' ? 'Administration' : item === 'CITY_HALL' ? 'Mairie' : item === 'POLICE' ? 'Commissariat' : 'Partenaire'}
                     </button>
                 ))}
             </section>
@@ -86,7 +114,7 @@ export default function MapPage() {
                     <div className="absolute left-[36%] top-[32%] h-[180px] w-[145px] rotate-[16deg] rounded-[52%_44%_58%_46%] border border-[#34f58b]/25 bg-[#0f3b35]/35" />
                     <div className="absolute inset-x-8 top-5 flex items-center justify-between rounded-2xl border border-white/10 bg-[#07111f]/70 p-3 backdrop-blur-xl">
                         <div>
-                            <p className="text-xs font-semibold text-[#8094ad]">Points chargés depuis l’API</p>
+                            <p className="text-xs font-semibold text-[#8094ad]">{userPosition ? 'Triés par distance' : 'Points chargés depuis l’API'}</p>
                             <p className="text-lg font-black text-white">{filteredPoints.length} point(s)</p>
                         </div>
                         <span className="rounded-full bg-[#34f58b]/15 px-3 py-1 text-xs font-bold text-[#34f58b]">{isLoading ? 'Load' : 'Live'}</span>
@@ -123,7 +151,13 @@ export default function MapPage() {
                                 <div>
                                     <p className="text-lg font-black text-white">{selectedPoint.name}</p>
                                     <p className="mt-1 text-sm text-[#9aacbf]">{selectedPoint.address}</p>
-                                    <p className="mt-2 text-sm font-semibold text-[#53a9ff]">{selectedPoint.hours || 'Horaires non renseignés'}</p>
+                                    <p className="mt-2 text-sm font-semibold text-[#53a9ff]">
+                                        {selectedPoint.distance !== undefined && `${selectedPoint.distance} km • `}
+                                        {selectedPoint.serviceLabel || 'Point SenDocu'}
+                                    </p>
+                                    <p className={`mt-1 text-xs font-black ${selectedPoint.isOpen ? 'text-[#34f58b]' : 'text-[#f6c945]'}`}>
+                                        {selectedPoint.isOpen === null ? 'Horaires à confirmer' : selectedPoint.isOpen ? 'Ouvert maintenant' : 'Fermé actuellement'} · {selectedPoint.hours || 'Horaires non renseignés'}
+                                    </p>
                                 </div>
                                 {selectedPoint.phone && (
                                     <a href={`tel:${selectedPoint.phone}`} className="grid h-10 w-10 place-items-center rounded-xl bg-white/10 text-xl text-[#24e943]">☎</a>

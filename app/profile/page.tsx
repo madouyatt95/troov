@@ -3,6 +3,7 @@
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { SenDocuShell } from '@/components/SenDocuShell';
+import { SenIcon } from '@/components/SenIcon';
 
 type Profile = {
     id: string;
@@ -16,12 +17,12 @@ type Profile = {
 };
 
 const menu = [
-    ['Mes déclarations', '📄', '/owner'],
-    ['Déclarer une perte', '➕', '/owner/report'],
-    ['Signaler un document trouvé', '🪪', '/finder'],
-    ['Points de dépôt et retrait', '📍', '/map'],
-    ['Suivre un code', '⌗', '/status'],
-];
+    ['Mes déclarations', 'doc', '/owner'],
+    ['Déclarer une perte', 'plus', '/owner/report'],
+    ['Signaler un document trouvé', 'shield', '/finder'],
+    ['Points de dépôt et retrait', 'pin', '/map'],
+    ['Suivre un code', 'hash', '/status'],
+] as const;
 
 export default function ProfilePage() {
     const [profile, setProfile] = useState<Profile | null>(null);
@@ -114,7 +115,9 @@ export default function ProfilePage() {
             <section className="space-y-3 px-5 pt-5">
                 {menu.map(([label, icon, href]) => (
                     <Link key={label} href={href} className="flex w-full items-center gap-4 rounded-[14px] border border-white/10 bg-white/[0.045] p-4 text-left">
-                        <span className="grid h-9 w-9 place-items-center rounded-xl bg-white/8 text-lg">{icon}</span>
+                        <span className="grid h-9 w-9 place-items-center rounded-xl bg-white/8 text-[#34f58b]">
+                            <SenIcon name={icon} className="h-5 w-5" />
+                        </span>
                         <span className="flex-1 font-bold text-white">{label}</span>
                         <span className="text-[#62758d]">›</span>
                     </Link>

@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useRef, useCallback } from 'react';
+import Image from 'next/image';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 
@@ -134,9 +135,12 @@ export function SelfieCapture({ onCapture, onCancel }: SelfieCaptureProps) {
 
                 {capturedImage && (
                     <div className="w-full max-w-md">
-                        <img
+                        <Image
                             src={capturedImage}
                             alt="Selfie capturé"
+                            width={720}
+                            height={720}
+                            unoptimized
                             className="w-full aspect-square object-cover rounded-2xl"
                         />
                     </div>

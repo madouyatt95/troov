@@ -5,8 +5,8 @@ const JWT_SECRET = new TextEncoder().encode(
     process.env.JWT_SECRET || 'dev-secret-change-in-production'
 );
 
-const JWT_ISSUER = 'troov';
-const JWT_AUDIENCE = 'troov-users';
+const JWT_ISSUER = 'sendocu';
+const JWT_AUDIENCE = 'sendocu-users';
 const ACCESS_TOKEN_EXPIRY = '1h';
 const REFRESH_TOKEN_EXPIRY = '7d';
 

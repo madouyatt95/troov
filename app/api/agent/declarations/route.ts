@@ -92,8 +92,25 @@ export async function PATCH(request: NextRequest) {
             );
         }
 
-        const declaration = await prisma.declaration.findUnique({
-            where: { id: declarationId }
+        const agent = await prisma.agent.findUnique({
+            where: { userId: session.userId },
+            include: { depositPoint: true },
+        });
+
+        if (!agent && !hasRole(session, ['ADMIN', 'SUPER_ADMIN'])) {
+            return NextResponse.json(
+                { success: false, message: 'Agent non trouvé' },
+                { status: 404 }
+            );
+        }
+
+        const declaration = await prisma.declaration.findFirst({
+            where: {
+                id: declarationId,
+                ...(agent && !hasRole(session, ['ADMIN', 'SUPER_ADMIN'])
+                    ? { depositPointId: agent.depositPointId }
+                    : {}),
+            }
         });
 
         if (!declaration) {
@@ -129,7 +146,7 @@ export async function PATCH(request: NextRequest) {
                     });
                     // Increment agent's completed pickups
                     await prisma.agent.updateMany({
-                        where: { userId: session.userId },
+                        where: agent ? { id: agent.id } : { userId: session.userId },
                         data: { completedPickups: { increment: 1 } }
                     });
                 }

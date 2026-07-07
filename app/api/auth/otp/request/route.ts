@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { checkRateLimit } from '@/lib/rate-limit';
 import { generateOtp, hashOtp, hashData, generateSalt } from '@/lib/hash';
 import prisma from '@/lib/db/prisma';
-import { sendWhatsAppOTP, getOtpMessage } from '@/lib/whatsapp';
+import { sendWhatsAppOTP } from '@/lib/whatsapp';
 
 export async function POST(request: NextRequest) {
     try {

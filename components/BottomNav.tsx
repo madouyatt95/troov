@@ -2,14 +2,15 @@
 
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
+import { SenIcon } from '@/components/SenIcon';
 
 const tabs = [
-    { href: '/', label: 'Accueil', icon: '⌂' },
-    { href: '/owner/report', label: 'Déclarer', icon: '＋' },
-    { href: '/map', label: 'Carte', icon: '⌖' },
-    { href: '/messages', label: 'Messages', icon: '●' },
-    { href: '/profile', label: 'Profil', icon: '◉' },
-];
+    { href: '/', label: 'Accueil', icon: 'home' },
+    { href: '/owner/report', label: 'Déclarer', icon: 'plus' },
+    { href: '/map', label: 'Carte', icon: 'map' },
+    { href: '/messages', label: 'Messages', icon: 'message' },
+    { href: '/profile', label: 'Profil', icon: 'user' },
+] as const;
 
 export function BottomNav() {
     const pathname = usePathname();
@@ -28,7 +29,7 @@ export function BottomNav() {
                                 : 'text-[#7f91ad] hover:bg-white/5 hover:text-white'
                                 }`}
                         >
-                            <span className="text-lg leading-none">{tab.icon}</span>
+                            <SenIcon name={tab.icon} className="h-5 w-5" />
                             <span className="font-semibold">{tab.label}</span>
                         </Link>
                     );

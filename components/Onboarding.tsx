@@ -146,7 +146,7 @@ export function useOnboarding() {
     useEffect(() => {
         const checkOnboarding = async () => {
             // First check localStorage for quick response
-            const localSeen = localStorage.getItem('troov_onboarding_seen');
+            const localSeen = localStorage.getItem('sendocu_onboarding_seen');
             if (localSeen === 'true') {
                 setIsChecking(false);
                 return;
@@ -172,7 +172,7 @@ export function useOnboarding() {
     }, []);
 
     const completeOnboarding = () => {
-        localStorage.setItem('troov_onboarding_seen', 'true');
+        localStorage.setItem('sendocu_onboarding_seen', 'true');
         setShowOnboarding(false);
     };
 

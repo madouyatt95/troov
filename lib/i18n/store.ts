@@ -17,7 +17,7 @@ export const useLanguageStore = create<LanguageState>()(
             setLocale: (locale) => set({ locale }),
         }),
         {
-            name: 'troov-language',
+            name: 'sendocu-language',
         }
     )
 );

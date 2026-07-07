@@ -1,9 +1,8 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import Link from 'next/link';
-import { Button } from '@/components/ui/button';
-import { Card, CardContent } from '@/components/ui/card';
+import { SenDocuShell } from '@/components/SenDocuShell';
 
 interface Declaration {
     id: string;
@@ -14,44 +13,66 @@ interface Declaration {
     regionFound: string;
 }
 
+type Filter = 'PENDING' | 'DEPOSITED' | 'MATCHED';
+
 const statusConfig: Record<string, { label: string; color: string; bg: string }> = {
-    PENDING: { label: 'En attente', color: 'text-[#f59e0b]', bg: 'bg-[#f59e0b]/20' },
-    APPROVED: { label: 'Approuvé', color: 'text-[#4cc9f0]', bg: 'bg-[#4cc9f0]/20' },
-    DEPOSITED: { label: 'Déposé', color: 'text-[#4ade80]', bg: 'bg-[#4ade80]/20' },
-    MATCHED: { label: 'Correspondance', color: 'text-[#a855f7]', bg: 'bg-[#a855f7]/20' },
-    PICKED_UP: { label: 'Récupéré', color: 'text-[#6b6b90]', bg: 'bg-[#6b6b90]/20' },
+    PENDING: { label: 'À valider', color: 'text-[#f6c945]', bg: 'bg-[#f6c945]/12' },
+    APPROVED: { label: 'Validé', color: 'text-[#53a9ff]', bg: 'bg-[#53a9ff]/12' },
+    DEPOSITED: { label: 'Déposé', color: 'text-[#34f58b]', bg: 'bg-[#34f58b]/12' },
+    MATCHED: { label: 'Correspondance', color: 'text-[#b57cff]', bg: 'bg-[#b57cff]/12' },
+    PICKED_UP: { label: 'Récupéré', color: 'text-[#8ba0b8]', bg: 'bg-white/8' },
+};
+
+const filterLabels: Record<Filter, string> = {
+    PENDING: 'À valider',
+    DEPOSITED: 'Déposés',
+    MATCHED: 'Matchés',
 };
 
 export default function AgentDashboard() {
     const [declarations, setDeclarations] = useState<Declaration[]>([]);
-    const [filter, setFilter] = useState<'PENDING' | 'DEPOSITED' | 'MATCHED'>('PENDING');
+    const [depositPointName, setDepositPointName] = useState('');
+    const [filter, setFilter] = useState<Filter>('PENDING');
     const [isLoading, setIsLoading] = useState(true);
     const [actionLoading, setActionLoading] = useState<string | null>(null);
+    const [error, setError] = useState('');
 
-    useEffect(() => {
-        fetchDeclarations();
-    }, [filter]);
+    const fetchDeclarations = useCallback(async () => {
+        setIsLoading(true);
+        setError('');
 
-    const fetchDeclarations = async () => {
         try {
             const response = await fetch(`/api/agent/declarations?status=${filter}`);
-            if (!response.ok) {
-                if (response.status === 401 || response.status === 403) {
-                    window.location.href = '/login';
-                    return;
-                }
+
+            if (response.status === 401 || response.status === 403) {
+                window.location.href = '/login';
+                return;
             }
+
             const data = await response.json();
+
+            if (!response.ok) {
+                setError(data.message || 'Chargement impossible');
+                return;
+            }
+
             setDeclarations(data.declarations || []);
-        } catch (error) {
-            console.error('Failed to load declarations:', error);
+            setDepositPointName(data.depositPoint?.name || '');
+        } catch {
+            setError('Connexion impossible');
         } finally {
             setIsLoading(false);
         }
-    };
+    }, [filter]);
 
-    const handleAction = async (declarationId: string, action: 'approve' | 'reject' | 'deposit' | 'pickup') => {
+    useEffect(() => {
+        fetchDeclarations();
+    }, [fetchDeclarations]);
+
+    const handleAction = async (declarationId: string, action: 'approve' | 'reject' | 'pickup') => {
         setActionLoading(declarationId);
+        setError('');
+
         try {
             const response = await fetch('/api/agent/declarations', {
                 method: 'PATCH',
@@ -59,160 +80,115 @@ export default function AgentDashboard() {
                 body: JSON.stringify({ declarationId, action }),
             });
 
-            if (response.ok) {
-                fetchDeclarations();
+            const data = await response.json();
+
+            if (!response.ok) {
+                setError(data.message || 'Action impossible');
+                return;
             }
-        } catch (error) {
-            console.error('Action failed:', error);
+
+            fetchDeclarations();
+        } catch {
+            setError('Action impossible');
         } finally {
             setActionLoading(null);
         }
     };
 
     return (
-        <main className="flex-1 flex flex-col min-h-screen">
-            {/* Header */}
-            <header className="flex items-center justify-between p-4 safe-area-top border-b border-[#2a2a45]">
-                <Link href="/" className="text-[#a0a0b9] hover:text-white transition-colors">
-                    <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
-                    </svg>
-                </Link>
-                <h1 className="font-semibold text-lg">Espace Agent</h1>
-                <div className="w-6"></div>
+        <SenDocuShell>
+            <header className="flex items-center justify-between px-5 pt-[calc(env(safe-area-inset-top)+18px)]">
+                <Link href="/" className="grid h-9 w-9 place-items-center rounded-xl text-white">‹</Link>
+                <div className="text-center">
+                    <h1 className="text-xl font-black tracking-[-0.04em] text-white">Espace agent</h1>
+                    {depositPointName && <p className="text-xs text-[#8094ad]">{depositPointName}</p>}
+                </div>
+                <button onClick={fetchDeclarations} className="grid h-9 w-9 place-items-center rounded-xl text-[#34f58b]">↻</button>
             </header>
 
-            {/* Filter tabs */}
-            <div className="flex border-b border-[#2a2a45]">
-                {(['PENDING', 'DEPOSITED', 'MATCHED'] as const).map((tab) => (
+            <section className="grid grid-cols-3 gap-2 px-5 pt-6">
+                {(['PENDING', 'DEPOSITED', 'MATCHED'] as Filter[]).map((tab) => (
                     <button
                         key={tab}
                         onClick={() => setFilter(tab)}
-                        className={`flex-1 py-3 text-sm font-medium transition-colors ${filter === tab
-                                ? 'text-[#4cc9f0] border-b-2 border-[#4cc9f0]'
-                                : 'text-[#6b6b90]'
+                        className={`rounded-[16px] px-3 py-3 text-sm font-black transition ${filter === tab
+                            ? 'bg-[#34f58b] text-[#04111d]'
+                            : 'border border-white/10 bg-white/[0.045] text-[#9aacbf]'
                             }`}
                     >
-                        {tab === 'PENDING' && '⏳ En attente'}
-                        {tab === 'DEPOSITED' && '📦 Déposés'}
-                        {tab === 'MATCHED' && '✨ Matchés'}
+                        {filterLabels[tab]}
                     </button>
                 ))}
-            </div>
+            </section>
 
-            {/* Content */}
-            <div className="flex-1 p-4 space-y-4">
-                {/* Stats */}
-                <div className="grid grid-cols-3 gap-3">
-                    <Card className="bg-[#f59e0b]/10 border-[#f59e0b]/30">
-                        <CardContent className="p-3 text-center">
-                            <p className="text-2xl font-bold text-[#f59e0b]">
-                                {declarations.filter(d => d.status === 'PENDING').length}
-                            </p>
-                            <p className="text-xs text-[#a0a0b9]">En attente</p>
-                        </CardContent>
-                    </Card>
-                    <Card className="bg-[#4ade80]/10 border-[#4ade80]/30">
-                        <CardContent className="p-3 text-center">
-                            <p className="text-2xl font-bold text-[#4ade80]">
-                                {declarations.filter(d => d.status === 'DEPOSITED').length}
-                            </p>
-                            <p className="text-xs text-[#a0a0b9]">Déposés</p>
-                        </CardContent>
-                    </Card>
-                    <Card className="bg-[#a855f7]/10 border-[#a855f7]/30">
-                        <CardContent className="p-3 text-center">
-                            <p className="text-2xl font-bold text-[#a855f7]">
-                                {declarations.filter(d => d.status === 'MATCHED').length}
-                            </p>
-                            <p className="text-xs text-[#a0a0b9]">Matchés</p>
-                        </CardContent>
-                    </Card>
-                </div>
-
-                {/* Loading */}
-                {isLoading && (
-                    <div className="flex items-center justify-center py-12">
-                        <div className="w-8 h-8 border-2 border-[#4361ee] border-t-transparent rounded-full animate-spin"></div>
+            <section className="space-y-3 px-5 pt-5">
+                {error && (
+                    <div className="rounded-[18px] border border-[#ff6b6b]/30 bg-[#ff6b6b]/10 p-4 text-sm text-[#ff8585]">
+                        {error}
                     </div>
                 )}
 
-                {/* Empty state */}
-                {!isLoading && declarations.length === 0 && (
-                    <div className="text-center py-12">
-                        <p className="text-[#a0a0b9]">Aucune déclaration dans cette catégorie</p>
+                {isLoading && <div className="sen-card p-5 text-[#9aacbf]">Chargement des dépôts...</div>}
+
+                {!isLoading && declarations.length === 0 && !error && (
+                    <div className="sen-card p-5">
+                        <h2 className="text-2xl font-black tracking-[-0.05em] text-white">Aucun dossier</h2>
+                        <p className="mt-3 text-sm leading-5 text-[#9aacbf]">
+                            Aucun document dans cette catégorie pour votre point de dépôt.
+                        </p>
                     </div>
                 )}
 
-                {/* Declarations list */}
-                {!isLoading && declarations.length > 0 && (
-                    <div className="space-y-3">
-                        {declarations.map((decl) => {
-                            const status = statusConfig[decl.status] || statusConfig.PENDING;
-                            return (
-                                <Card key={decl.id} className="border-[#2a2a45]">
-                                    <CardContent className="p-4">
-                                        <div className="flex items-center justify-between mb-3">
-                                            <div className="flex items-center gap-3">
-                                                <span className="text-2xl">
-                                                    {decl.docType === 'CNI' ? '🪪' : '📘'}
-                                                </span>
-                                                <div>
-                                                    <p className="font-medium">{decl.docType}</p>
-                                                    <p className="text-xs text-[#6b6b90]">
-                                                        Code: <span className="text-[#4cc9f0]">{decl.trackingCode}</span>
-                                                    </p>
-                                                </div>
-                                            </div>
-                                            <span className={`text-xs px-2 py-1 rounded-full ${status.bg} ${status.color}`}>
-                                                {status.label}
-                                            </span>
-                                        </div>
+                {declarations.map((declaration) => {
+                    const status = statusConfig[declaration.status] || statusConfig.PENDING;
 
-                                        <p className="text-xs text-[#6b6b90] mb-3">
-                                            {new Date(decl.createdAt).toLocaleDateString('fr-FR')} • {decl.regionFound}
-                                        </p>
+                    return (
+                        <article key={declaration.id} className="sen-card-mini p-4">
+                            <div className="flex items-start justify-between gap-3">
+                                <div>
+                                    <p className="font-black text-white">{declaration.docType}</p>
+                                    <p className="mt-1 font-mono text-xs text-[#53a9ff]">{declaration.trackingCode}</p>
+                                    <p className="mt-2 text-xs text-[#8094ad]">
+                                        {new Date(declaration.createdAt).toLocaleDateString('fr-FR')} · {declaration.regionFound}
+                                    </p>
+                                </div>
+                                <span className={`rounded-full px-3 py-1 text-xs font-black ${status.bg} ${status.color}`}>
+                                    {status.label}
+                                </span>
+                            </div>
 
-                                        {/* Actions */}
-                                        <div className="flex gap-2">
-                                            {decl.status === 'PENDING' && (
-                                                <>
-                                                    <Button
-                                                        size="sm"
-                                                        className="flex-1 bg-[#4ade80] hover:bg-[#4ade80]/80"
-                                                        onClick={() => handleAction(decl.id, 'approve')}
-                                                        isLoading={actionLoading === decl.id}
-                                                    >
-                                                        ✓ Valider dépôt
-                                                    </Button>
-                                                    <Button
-                                                        size="sm"
-                                                        variant="outline"
-                                                        className="border-[#f87171] text-[#f87171]"
-                                                        onClick={() => handleAction(decl.id, 'reject')}
-                                                    >
-                                                        ✗
-                                                    </Button>
-                                                </>
-                                            )}
-                                            {decl.status === 'MATCHED' && (
-                                                <Button
-                                                    size="sm"
-                                                    className="w-full bg-[#a855f7] hover:bg-[#a855f7]/80"
-                                                    onClick={() => handleAction(decl.id, 'pickup')}
-                                                    isLoading={actionLoading === decl.id}
-                                                >
-                                                    📤 Marquer comme récupéré
-                                                </Button>
-                                            )}
-                                        </div>
-                                    </CardContent>
-                                </Card>
-                            );
-                        })}
-                    </div>
-                )}
-            </div>
-        </main>
+                            {declaration.status === 'PENDING' && (
+                                <div className="mt-4 grid grid-cols-[1fr_auto] gap-2">
+                                    <button
+                                        className="sen-action min-h-10"
+                                        onClick={() => handleAction(declaration.id, 'approve')}
+                                        disabled={actionLoading === declaration.id}
+                                    >
+                                        Valider le dépôt
+                                    </button>
+                                    <button
+                                        className="rounded-xl border border-[#ff6b6b]/30 bg-[#ff6b6b]/10 px-4 font-black text-[#ff8585]"
+                                        onClick={() => handleAction(declaration.id, 'reject')}
+                                        disabled={actionLoading === declaration.id}
+                                    >
+                                        Rejeter
+                                    </button>
+                                </div>
+                            )}
+
+                            {declaration.status === 'MATCHED' && (
+                                <button
+                                    className="sen-action mt-4 w-full"
+                                    onClick={() => handleAction(declaration.id, 'pickup')}
+                                    disabled={actionLoading === declaration.id}
+                                >
+                                    Confirmer le retrait
+                                </button>
+                            )}
+                        </article>
+                    );
+                })}
+            </section>
+        </SenDocuShell>
     );
 }
