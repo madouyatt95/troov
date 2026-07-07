@@ -1,5 +1,5 @@
 // SenDocu Service Worker for Push Notifications
-const CACHE_NAME = 'troov-v1';
+const CACHE_NAME = 'sendocu-v2';
 
 // Install event
 self.addEventListener('install', (event) => {
@@ -10,7 +10,15 @@ self.addEventListener('install', (event) => {
 // Activate event
 self.addEventListener('activate', (event) => {
     console.log('[SW] Activating service worker...');
-    event.waitUntil(clients.claim());
+    event.waitUntil(
+        caches.keys()
+            .then((cacheNames) => Promise.all(
+                cacheNames
+                    .filter((cacheName) => cacheName !== CACHE_NAME)
+                    .map((cacheName) => caches.delete(cacheName))
+            ))
+            .then(() => clients.claim())
+    );
 });
 
 // Push event - handle incoming notifications
@@ -22,7 +30,7 @@ self.addEventListener('push', (event) => {
         body: 'Vous avez une nouvelle notification',
         icon: '/icon-512.png',
         badge: '/icon-512.png',
-        tag: 'troov-notification',
+        tag: 'sendocu-notification',
         data: {}
     };
 
@@ -39,7 +47,7 @@ self.addEventListener('push', (event) => {
         body: data.body,
         icon: data.icon || '/icon-512.png',
         badge: data.badge || '/icon-512.png',
-        tag: data.tag || 'troov-notification',
+        tag: data.tag || 'sendocu-notification',
         vibrate: [200, 100, 200],
         data: data.data,
         actions: data.actions || [],
