@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import prisma from '@/lib/db/prisma';
 import { verifySession } from '@/lib/auth/session';
+import { findMatchesForReportInput } from '@/lib/matching/engine';
 
 // GET /api/reports - Get user's reports
 export async function GET(request: NextRequest) {
@@ -95,8 +96,10 @@ export async function POST(request: NextRequest) {
             }
         });
 
-        // Trigger matching in background (we'll implement this later)
-        // matchReportWithDeclarations(report.id);
+        // Trigger real matching in background using submitted values.
+        findMatchesForReportInput(report.id, fullNumber, fullName).catch(err => {
+            console.error('Matching error:', err);
+        });
 
         return NextResponse.json({
             success: true,

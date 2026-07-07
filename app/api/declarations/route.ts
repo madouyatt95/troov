@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { checkRateLimit } from '@/lib/rate-limit';
 import { generateSalt, hashPartialNumber, hashNamePrefix, generateTrackingCode } from '@/lib/hash';
 import prisma from '@/lib/db/prisma';
-import { findMatchesForDeclaration } from '@/lib/matching/engine';
+import { findMatchesForDeclarationInput } from '@/lib/matching/engine';
 
 // Create a new declaration (guest/finder)
 export async function POST(request: NextRequest) {
@@ -128,8 +128,8 @@ export async function POST(request: NextRequest) {
             }
         });
 
-        // Check for matches asynchronously (don't block response)
-        findMatchesForDeclaration(declaration.id).catch(err => {
+        // Check for matches asynchronously using the submitted partials.
+        findMatchesForDeclarationInput(declaration.id, lastFourDigits, namePrefix).catch(err => {
             console.error('Matching error:', err);
         });
 

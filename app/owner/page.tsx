@@ -1,10 +1,8 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import Link from 'next/link';
-import { Button } from '@/components/ui/button';
-import { Card, CardContent } from '@/components/ui/card';
-import { StatusTimeline } from '@/components/Timeline';
+import { SenDocuShell } from '@/components/SenDocuShell';
 
 interface Report {
     id: string;
@@ -16,14 +14,14 @@ interface Report {
 }
 
 const statusConfig = {
-    SEARCHING: { label: 'En recherche', color: 'text-[#f59e0b]', bg: 'bg-[#f59e0b]/20', icon: '🔍' },
-    MATCHED: { label: 'Correspondance trouvée!', color: 'text-[#4ade80]', bg: 'bg-[#4ade80]/20', icon: '✨' },
-    RECOVERED: { label: 'Récupéré', color: 'text-[#4cc9f0]', bg: 'bg-[#4cc9f0]/20', icon: '✅' },
-    CANCELLED: { label: 'Annulé', color: 'text-[#6b6b90]', bg: 'bg-[#6b6b90]/20', icon: '❌' },
+    SEARCHING: { label: 'Recherche active', color: 'text-[#f6c945]', bg: 'bg-[#f6c945]/12', icon: '⌕' },
+    MATCHED: { label: 'Correspondance détectée', color: 'text-[#34f58b]', bg: 'bg-[#34f58b]/12', icon: '!' },
+    RECOVERED: { label: 'Document récupéré', color: 'text-[#53a9ff]', bg: 'bg-[#53a9ff]/12', icon: '✓' },
+    CANCELLED: { label: 'Annulée', color: 'text-[#8ba0b8]', bg: 'bg-white/8', icon: '×' },
 };
 
 const docTypeLabels = {
-    CNI: 'Carte Nationale d\'Identité',
+    CNI: 'Carte nationale d’identité',
     PASSPORT: 'Passeport',
 };
 
@@ -33,150 +31,92 @@ export default function OwnerDashboard() {
     const [error, setError] = useState('');
 
     useEffect(() => {
-        fetchReports();
-    }, []);
-
-    const fetchReports = async () => {
-        try {
-            const response = await fetch('/api/reports');
-            if (!response.ok) {
+        fetch('/api/reports')
+            .then((response) => {
                 if (response.status === 401) {
                     window.location.href = '/login';
-                    return;
+                    return null;
                 }
-                throw new Error('Erreur lors du chargement');
-            }
-            const data = await response.json();
-            setReports(data.reports || []);
-        } catch (err) {
-            setError('Impossible de charger vos signalements');
-            console.error(err);
-        } finally {
-            setIsLoading(false);
-        }
-    };
+                if (!response.ok) throw new Error('Erreur lors du chargement');
+                return response.json();
+            })
+            .then((data) => {
+                if (data) setReports(data.reports || []);
+            })
+            .catch(() => setError('Impossible de charger vos recherches'))
+            .finally(() => setIsLoading(false));
+    }, []);
+
+    const activeReports = reports.filter((report) => report.status === 'SEARCHING').length;
+    const matchedReports = reports.filter((report) => report.status === 'MATCHED').length;
 
     return (
-        <main className="flex-1 flex flex-col min-h-screen">
-            {/* Header */}
-            <header className="flex items-center justify-between p-4 safe-area-top border-b border-[#2a2a45]">
-                <Link href="/" className="text-[#a0a0b9] hover:text-white transition-colors">
-                    <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
-                    </svg>
-                </Link>
-                <h1 className="font-semibold text-lg">Mes documents</h1>
-                <div className="w-6"></div>
+        <SenDocuShell>
+            <header className="flex items-center justify-between px-5 pt-[calc(env(safe-area-inset-top)+18px)]">
+                <Link href="/" className="grid h-9 w-9 place-items-center rounded-xl text-white">‹</Link>
+                <h1 className="text-xl font-black tracking-[-0.04em] text-white">Mes recherches</h1>
+                <Link href="/owner/report" className="grid h-9 w-9 place-items-center rounded-xl text-[#34f58b]">＋</Link>
             </header>
 
-            {/* Content */}
-            <div className="flex-1 p-4 space-y-4">
-                {/* Stats banner */}
-                <Card className="bg-gradient-to-r from-[#4361ee]/20 to-[#a855f7]/20 border-[#4361ee]/30">
-                    <CardContent className="p-4 flex items-center justify-between">
-                        <div>
-                            <p className="text-sm text-[#a0a0b9]">Signalements actifs</p>
-                            <p className="text-2xl font-bold">{reports.filter(r => r.status === 'SEARCHING').length}</p>
-                        </div>
-                        <div className="w-12 h-12 bg-[#4361ee]/30 rounded-xl flex items-center justify-center">
-                            <span className="text-2xl">📋</span>
-                        </div>
-                    </CardContent>
-                </Card>
+            <section className="grid grid-cols-2 gap-3 px-5 pt-6">
+                <div className="sen-card-mini p-4">
+                    <p className="text-2xl font-black text-white">{activeReports}</p>
+                    <p className="mt-1 text-xs text-[#8094ad]">Recherches actives</p>
+                </div>
+                <div className="sen-card-mini p-4">
+                    <p className="text-2xl font-black text-[#34f58b]">{matchedReports}</p>
+                    <p className="mt-1 text-xs text-[#8094ad]">Correspondances</p>
+                </div>
+            </section>
 
-                {/* Match notification */}
-                {reports.some(r => r.status === 'MATCHED') && (
-                    <Card className="bg-[#4ade80]/10 border-[#4ade80]/30 animate-pulse">
-                        <CardContent className="p-4 flex items-center gap-3">
-                            <span className="text-2xl">🎉</span>
-                            <div>
-                                <p className="font-semibold text-[#4ade80]">Bonne nouvelle!</p>
-                                <p className="text-sm text-[#a0a0b9]">Un document correspondant a été trouvé</p>
-                            </div>
-                        </CardContent>
-                    </Card>
-                )}
+            <section className="space-y-3 px-5 pt-5">
+                {isLoading && <div className="sen-card p-5 text-[#9aacbf]">Chargement...</div>}
 
-                {/* Loading state */}
-                {isLoading && (
-                    <div className="flex items-center justify-center py-12">
-                        <div className="w-8 h-8 border-2 border-[#4361ee] border-t-transparent rounded-full animate-spin"></div>
-                    </div>
-                )}
-
-                {/* Error state */}
                 {error && (
-                    <Card className="bg-[#f87171]/10 border-[#f87171]/30">
-                        <CardContent className="p-4 text-center text-[#f87171]">
-                            {error}
-                        </CardContent>
-                    </Card>
+                    <div className="rounded-[18px] border border-[#ff6b6b]/30 bg-[#ff6b6b]/10 p-4 text-sm text-[#ff8585]">
+                        {error}
+                    </div>
                 )}
 
-                {/* Empty state */}
                 {!isLoading && !error && reports.length === 0 && (
-                    <div className="text-center py-12">
-                        <div className="w-20 h-20 mx-auto mb-4 bg-[#2a2a45] rounded-full flex items-center justify-center">
-                            <span className="text-4xl">📭</span>
-                        </div>
-                        <h3 className="font-semibold mb-2">Aucun signalement</h3>
-                        <p className="text-sm text-[#a0a0b9] mb-6">
-                            Vous n&apos;avez pas encore signalé de document perdu
+                    <div className="sen-card p-5">
+                        <h2 className="text-2xl font-black tracking-[-0.05em] text-white">Aucune recherche</h2>
+                        <p className="mt-3 text-sm leading-5 text-[#9aacbf]">
+                            Déclare une perte pour que SenDocu commence à surveiller les signalements trouvés.
                         </p>
+                        <Link href="/owner/report" className="sen-action mt-5 w-full">
+                            Déclarer une perte
+                        </Link>
                     </div>
                 )}
 
-                {/* Reports list */}
-                {!isLoading && reports.length > 0 && (
-                    <div className="space-y-3">
-                        <h2 className="text-sm font-medium text-[#a0a0b9]">Vos signalements</h2>
-                        {reports.map((report) => {
-                            const status = statusConfig[report.status];
-                            return (
-                                <Card key={report.id} className={`border-[#2a2a45] hover:border-[#4361ee]/50 transition-colors ${report.status === 'MATCHED' ? 'border-[#4ade80]/50 bg-[#4ade80]/5' : ''}`}>
-                                    <CardContent className="p-4">
-                                        <div className="flex items-center gap-4 mb-3">
-                                            <div className={`w-12 h-12 ${status.bg} rounded-xl flex items-center justify-center`}>
-                                                <span className="text-xl">{status.icon}</span>
-                                            </div>
-                                            <div className="flex-1">
-                                                <p className="font-medium">{docTypeLabels[report.docType]}</p>
-                                                <p className={`text-sm ${status.color}`}>{status.label}</p>
-                                            </div>
-                                            {report.status === 'MATCHED' && report.matchId ? (
-                                                <Link href={`/owner/match/${report.matchId}`} className="px-3 py-1.5 bg-[#4ade80] text-black text-sm font-medium rounded-lg hover:bg-[#22c55e] transition-colors">
-                                                    Voir →
-                                                </Link>
-                                            ) : (
-                                                <svg className="w-5 h-5 text-[#6b6b90]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-                                                </svg>
-                                            )}
-                                        </div>
-                                        {/* Timeline */}
-                                        <div className="mt-3 pt-3 border-t border-[#2a2a45]">
-                                            <StatusTimeline
-                                                status={report.status}
-                                                dates={{ created: new Date(report.createdAt).toLocaleDateString('fr-FR') }}
-                                            />
-                                        </div>
-                                    </CardContent>
-                                </Card>
-                            );
-                        })}
-                    </div>
-                )}
-            </div>
+                {reports.map((report) => {
+                    const status = statusConfig[report.status];
+                    const content = (
+                        <div className={`sen-card-mini block border ${report.status === 'MATCHED' ? 'border-[#34f58b]/40' : 'border-white/10'} p-4`}>
+                            <div className="flex items-center gap-4">
+                                <div className={`grid h-12 w-12 place-items-center rounded-2xl ${status.bg} ${status.color} text-xl font-black`}>
+                                    {status.icon}
+                                </div>
+                                <div className="min-w-0 flex-1">
+                                    <p className="font-black text-white">{docTypeLabels[report.docType]}</p>
+                                    <p className={`mt-1 text-sm font-semibold ${status.color}`}>{status.label}</p>
+                                    <p className="mt-1 text-xs text-[#62758d]">
+                                        Créée le {new Date(report.createdAt).toLocaleDateString('fr-FR')}
+                                    </p>
+                                </div>
+                                <span className="text-[#62758d]">›</span>
+                            </div>
+                        </div>
+                    );
 
-            {/* Fixed bottom button */}
-            <div className="p-4 safe-area-bottom border-t border-[#2a2a45]">
-                <Link href="/owner/report">
-                    <Button className="w-full bg-gradient-to-r from-[#a855f7] to-[#4361ee]">
-                        <span className="mr-2">➕</span>
-                        Signaler une perte
-                    </Button>
-                </Link>
-            </div>
-        </main>
+                    if (report.status === 'MATCHED' && report.matchId) {
+                        return <Link key={report.id} href={`/owner/match/${report.matchId}`}>{content}</Link>;
+                    }
+
+                    return <div key={report.id}>{content}</div>;
+                })}
+            </section>
+        </SenDocuShell>
     );
 }
