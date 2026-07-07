@@ -2,6 +2,7 @@
 
 import { useEffect, useMemo, useState } from 'react';
 import Link from 'next/link';
+import dynamic from 'next/dynamic';
 import { SenDocuShell } from '@/components/SenDocuShell';
 
 type DepositPoint = {
@@ -20,16 +21,16 @@ type DepositPoint = {
 };
 
 const filters = ['Tous', 'ADMIN', 'CITY_HALL', 'POLICE', 'PARTNER'];
-
-function markerPosition(point: DepositPoint) {
-    const minLat = 12.0;
-    const maxLat = 16.8;
-    const minLng = -17.7;
-    const maxLng = -11.2;
-    const x = Math.min(86, Math.max(12, ((point.lng - minLng) / (maxLng - minLng)) * 74 + 12));
-    const y = Math.min(82, Math.max(18, (1 - (point.lat - minLat) / (maxLat - minLat)) * 64 + 18));
-    return { left: `${x}%`, top: `${y}%` };
-}
+const LiveMap = dynamic(() => import('@/components/LeafletMap').then((mod) => mod.LeafletMap), {
+    ssr: false,
+    loading: () => (
+        <div className="flex h-full w-full items-center justify-center bg-[#07111f]">
+            <div className="rounded-2xl border border-white/10 bg-white/[0.05] px-4 py-3 text-sm font-bold text-[#9aacbf]">
+                Préparation de la carte...
+            </div>
+        </div>
+    ),
+});
 
 export default function MapPage() {
     const [points, setPoints] = useState<DepositPoint[]>([]);
@@ -107,12 +108,24 @@ export default function MapPage() {
             </section>
 
             <section className="px-5 pt-4">
-                <div className="sen-card relative h-[430px] overflow-hidden p-0">
-                    <div className="absolute inset-0 bg-[radial-gradient(circle_at_42%_38%,rgba(83,169,255,0.28),transparent_25%),linear-gradient(145deg,#0b2138,#06111f)]" />
-                    <div className="absolute inset-0 opacity-35 [background-image:linear-gradient(rgba(83,169,255,.12)_1px,transparent_1px),linear-gradient(90deg,rgba(83,169,255,.12)_1px,transparent_1px)] [background-size:28px_28px]" />
-                    <div className="absolute left-[18%] top-[14%] h-[250px] w-[210px] rotate-[-18deg] rounded-[48%_52%_50%_44%] border border-[#53a9ff]/35 bg-[#102845]/70 shadow-[0_0_70px_rgba(83,169,255,0.18)]" />
-                    <div className="absolute left-[36%] top-[32%] h-[180px] w-[145px] rotate-[16deg] rounded-[52%_44%_58%_46%] border border-[#34f58b]/25 bg-[#0f3b35]/35" />
-                    <div className="absolute inset-x-8 top-5 flex items-center justify-between rounded-2xl border border-white/10 bg-[#07111f]/70 p-3 backdrop-blur-xl">
+                <div className="sen-card relative h-[520px] overflow-hidden p-0">
+                    {isLoading ? (
+                        <div className="flex h-full items-center justify-center bg-[radial-gradient(circle_at_50%_30%,rgba(83,169,255,0.18),transparent_35%),#07111f]">
+                            <div className="flex items-center gap-3 rounded-2xl border border-white/10 bg-white/[0.05] px-4 py-3 text-sm font-bold text-[#9aacbf]">
+                                <span className="h-4 w-4 animate-spin rounded-full border-2 border-[#34f58b] border-t-transparent" />
+                                Chargement des points...
+                            </div>
+                        </div>
+                    ) : (
+                        <LiveMap
+                            points={filteredPoints}
+                            selectedId={selectedPoint?.id}
+                            onSelect={(point) => setSelectedId(point.id)}
+                            className="h-full"
+                        />
+                    )}
+
+                    <div className="pointer-events-none absolute inset-x-5 top-5 flex items-center justify-between rounded-2xl border border-white/10 bg-[#07111f]/78 p-3 shadow-2xl backdrop-blur-xl">
                         <div>
                             <p className="text-xs font-semibold text-[#8094ad]">{userPosition ? 'Triés par distance' : 'Points chargés depuis l’API'}</p>
                             <p className="text-lg font-black text-white">{filteredPoints.length} point(s)</p>
@@ -121,29 +134,16 @@ export default function MapPage() {
                     </div>
 
                     {error && (
-                        <div className="absolute inset-x-6 top-28 rounded-2xl border border-[#ff6b6b]/30 bg-[#ff6b6b]/10 p-4 text-sm text-[#ff8585]">
+                        <div className="absolute inset-x-6 top-28 rounded-2xl border border-[#ff6b6b]/30 bg-[#07111f]/90 p-4 text-sm text-[#ff8585] shadow-2xl backdrop-blur-xl">
                             {error}
                         </div>
                     )}
 
                     {!isLoading && filteredPoints.length === 0 && !error && (
-                        <div className="absolute inset-x-6 top-28 rounded-2xl border border-[#f6c945]/30 bg-[#f6c945]/10 p-4 text-sm text-[#f6d878]">
+                        <div className="absolute inset-x-6 top-28 rounded-2xl border border-[#f6c945]/30 bg-[#07111f]/90 p-4 text-sm text-[#f6d878] shadow-2xl backdrop-blur-xl">
                             Aucun point actif trouvé. Lance le seed ou ajoute des points de dépôt en base.
                         </div>
                     )}
-
-                    {filteredPoints.map((point, index) => (
-                        <button
-                            key={point.id}
-                            onClick={() => setSelectedId(point.id)}
-                            className="absolute"
-                            style={markerPosition(point)}
-                            aria-label={point.name}
-                        >
-                            <span className={`absolute -inset-4 rounded-full blur-md ${selectedPoint?.id === point.id ? 'bg-[#34f58b]/35' : 'bg-[#53a9ff]/20'}`} />
-                            <span className={`relative block h-5 w-5 rounded-full border-2 border-white ${selectedPoint?.id === point.id ? 'bg-[#34f58b]' : index % 3 === 0 ? 'bg-[#f6c945]' : 'bg-[#53a9ff]'}`} />
-                        </button>
-                    ))}
 
                     {selectedPoint && (
                         <div className="absolute inset-x-4 bottom-4 rounded-[18px] border border-white/10 bg-[#07111f]/90 p-4 shadow-2xl backdrop-blur-2xl">
