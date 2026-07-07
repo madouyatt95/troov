@@ -63,7 +63,7 @@ export default function MapPage() {
             <header className="flex items-center justify-between px-5 pt-[calc(env(safe-area-inset-top)+18px)]">
                 <Link href="/" className="grid h-9 w-9 place-items-center rounded-xl text-white">‹</Link>
                 <h1 className="text-xl font-black tracking-[-0.04em] text-white">Carte</h1>
-                <button className="grid h-9 w-9 place-items-center rounded-xl text-white">⌕</button>
+                <span className="w-9" />
             </header>
 
             <section className="no-scrollbar flex gap-2 overflow-x-auto px-5 pt-6">

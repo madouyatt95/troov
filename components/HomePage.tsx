@@ -47,7 +47,7 @@ export default function HomePage() {
     return (
         <SenDocuShell>
             <header className="flex items-center justify-between px-5 pt-[calc(env(safe-area-inset-top)+18px)]">
-                <button className="grid h-9 w-9 place-items-center rounded-xl text-2xl text-[#a8b5c8]">≡</button>
+                <Link href="/profile" className="grid h-9 w-9 place-items-center rounded-xl text-2xl text-[#a8b5c8]">≡</Link>
                 <SenDocuLogo />
                 <Link href="/messages" className="relative grid h-9 w-9 place-items-center rounded-xl text-xl">
                     🔔

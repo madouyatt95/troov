@@ -17,12 +17,10 @@ type Profile = {
 
 const menu = [
     ['Mes déclarations', '📄', '/owner'],
-    ['Documents retrouvés', '✅', '/owner'],
-    ['Points de retrait favoris', '📍', '/map'],
-    ['Langue de l’application', '🌍', '#'],
-    ['Confidentialité et sécurité', '🛡️', '#'],
-    ['Paramètres', '⚙️', '#'],
-    ['Aide et support', '💬', '#'],
+    ['Déclarer une perte', '➕', '/owner/report'],
+    ['Signaler un document trouvé', '🪪', '/finder'],
+    ['Points de dépôt et retrait', '📍', '/map'],
+    ['Suivre un code', '⌗', '/status'],
 ];
 
 export default function ProfilePage() {
