@@ -1,12 +1,49 @@
 'use client';
 
+import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { SenDocuLogo } from '@/components/SenDocuLogo';
 import { SenDocuShell } from '@/components/SenDocuShell';
 
 const timeline = ['Déclaré', 'Reçu', 'Vérifié', 'Retrouvé', 'Retrait'];
 
+type Stats = {
+    documentsRecovered: number;
+    activeSearches: number;
+    pendingDeclarations: number;
+    matchRate: number;
+};
+
 export default function HomePage() {
+    const [stats, setStats] = useState<Stats | null>(null);
+    const [statsError, setStatsError] = useState(false);
+
+    useEffect(() => {
+        let mounted = true;
+
+        fetch('/api/stats')
+            .then((response) => {
+                if (!response.ok) throw new Error('Stats unavailable');
+                return response.json();
+            })
+            .then((data) => {
+                if (mounted) setStats(data);
+            })
+            .catch(() => {
+                if (mounted) setStatsError(true);
+            });
+
+        return () => {
+            mounted = false;
+        };
+    }, []);
+
+    const statCards = [
+        [stats ? stats.pendingDeclarations.toLocaleString('fr-FR') : '—', 'Documents signalés'],
+        [stats ? stats.activeSearches.toLocaleString('fr-FR') : '—', 'Recherches actives'],
+        [stats ? `${stats.matchRate}%` : '—', 'Taux de match'],
+    ];
+
     return (
         <SenDocuShell>
             <header className="flex items-center justify-between px-5 pt-[calc(env(safe-area-inset-top)+18px)]">
@@ -14,7 +51,11 @@ export default function HomePage() {
                 <SenDocuLogo />
                 <Link href="/messages" className="relative grid h-9 w-9 place-items-center rounded-xl text-xl">
                     🔔
-                    <span className="absolute right-1.5 top-1 h-4 w-4 rounded-full bg-[#f3c316] text-center text-[9px] font-black leading-4 text-[#07111f]">1</span>
+                    {stats && stats.pendingDeclarations > 0 && (
+                        <span className="absolute right-1.5 top-1 h-4 min-w-4 rounded-full bg-[#f3c316] px-1 text-center text-[9px] font-black leading-4 text-[#07111f]">
+                            {Math.min(stats.pendingDeclarations, 9)}
+                        </span>
+                    )}
                 </Link>
             </header>
 
@@ -29,7 +70,7 @@ export default function HomePage() {
                         <div className="max-w-[12rem]">
                             <h2 className="text-[22px] font-black leading-[1.03] tracking-[-0.04em] text-white">J’ai perdu un document</h2>
                             <p className="mt-4 text-xs leading-4 text-[#b7c3d2]">
-                                Déclare une CNI, un passeport ou tout autre document et sois alerté s’il est retrouvé.
+                                Crée une vraie recherche liée à ton compte et reçois une alerte en cas de correspondance.
                             </p>
                         </div>
                         <div className="relative mt-2 h-28 w-24 shrink-0">
@@ -51,34 +92,40 @@ export default function HomePage() {
             <section className="grid grid-cols-2 gap-3 px-5 pt-4">
                 <Link href="/finder" className="sen-card-mini min-h-[120px] border-[#24e943]/35 p-4">
                     <h3 className="text-[17px] font-black leading-5 text-white">J’ai trouvé un document</h3>
-                    <p className="mt-3 text-xs leading-4 text-[#58e276]">Signaler un document trouvé en toute sécurité</p>
+                    <p className="mt-3 text-xs leading-4 text-[#58e276]">Créer un vrai signalement sans compte</p>
                     <div className="mt-3 text-right text-2xl text-[#24e943]">➤</div>
                 </Link>
                 <Link href="/status" className="sen-card-mini min-h-[120px] p-4">
                     <h3 className="text-[17px] font-black leading-5 text-white">Scanner / vérifier un document</h3>
-                    <p className="mt-3 text-xs leading-4 text-[#b7c3d2]">Scanner un QR code ou vérifier un document</p>
+                    <p className="mt-3 text-xs leading-4 text-[#b7c3d2]">Suivre un code de dépôt réel</p>
                     <div className="mt-3 text-right text-2xl text-[#15a8ff]">⌘</div>
                 </Link>
             </section>
 
             <section className="px-5 pt-6">
                 <div className="mb-3 flex items-center justify-between">
-                    <h2 className="text-lg font-black tracking-[-0.03em] text-white">Recherche active</h2>
-                    <Link href="/owner" className="text-xs font-semibold text-[#b7c3d2]">Voir tout ›</Link>
+                    <h2 className="text-lg font-black tracking-[-0.03em] text-white">Activité réelle</h2>
+                    <Link href="/owner" className="text-xs font-semibold text-[#b7c3d2]">Voir mes recherches ›</Link>
                 </div>
                 <div className="sen-card p-4">
                     <div className="flex items-center justify-between">
                         <div>
-                            <p className="text-base font-black text-white">CNI — Mamadou Y.</p>
-                            <p className="mt-1 text-xs text-[#8094ad]">Déclaré le 12 mai 2024</p>
+                            <p className="text-base font-black text-white">
+                                {stats ? `${stats.activeSearches} recherche(s) active(s)` : 'Chargement des données'}
+                            </p>
+                            <p className="mt-1 text-xs text-[#8094ad]">
+                                {statsError ? 'Base de données ou variables Vercel à vérifier' : 'Données lues depuis l’API /api/stats'}
+                            </p>
                         </div>
-                        <span className="rounded-lg bg-[#d6b80f]/18 px-2 py-1 text-xs font-black text-[#f3c316]">En cours</span>
+                        <span className="rounded-lg bg-[#d6b80f]/18 px-2 py-1 text-xs font-black text-[#f3c316]">
+                            Live
+                        </span>
                     </div>
                     <div className="mt-5 grid grid-cols-5 gap-1">
                         {timeline.map((step, index) => (
                             <div key={step} className="text-center">
-                                <div className={`mx-auto h-2 rounded-full ${index < 3 ? 'bg-[#34f58b]' : 'bg-white/10'}`} />
-                                <p className={`mt-2 text-[10px] font-semibold ${index < 3 ? 'text-[#34f58b]' : 'text-[#61728a]'}`}>{step}</p>
+                                <div className={`mx-auto h-2 rounded-full ${index < 2 ? 'bg-[#34f58b]' : 'bg-white/10'}`} />
+                                <p className={`mt-2 text-[10px] font-semibold ${index < 2 ? 'text-[#34f58b]' : 'text-[#61728a]'}`}>{step}</p>
                             </div>
                         ))}
                     </div>
@@ -86,11 +133,7 @@ export default function HomePage() {
             </section>
 
             <section className="grid grid-cols-3 gap-3 px-5 pt-4">
-                {[
-                    ['+12 450', 'Documents signalés'],
-                    ['98', 'Points partenaires'],
-                    ['98 %', 'Alertes sécurisées'],
-                ].map(([value, label]) => (
+                {statCards.map(([value, label]) => (
                     <div key={label} className="rounded-[22px] border border-white/10 bg-white/[0.045] p-3 text-center">
                         <p className="text-lg font-black text-white">{value}</p>
                         <p className="mt-1 text-[10px] leading-3 text-[#8094ad]">{label}</p>

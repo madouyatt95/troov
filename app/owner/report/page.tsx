@@ -21,12 +21,12 @@ export default function ReportLossPage() {
     const [step, setStep] = useState(1);
     const [docType, setDocType] = useState<DocType>('CNI');
     const [lastDigits, setLastDigits] = useState('');
-    const [firstName, setFirstName] = useState('Mamadou');
-    const [lastName, setLastName] = useState('Diallo');
-    const [place, setPlace] = useState('Pikine — Technopole');
-    const [lostDate, setLostDate] = useState('2026-07-05');
-    const [phone, setPhone] = useState('+221 77 123 45 67');
-    const [otp, setOtp] = useState('');
+    const [firstName, setFirstName] = useState('');
+    const [lastName, setLastName] = useState('');
+    const [dateOfBirth, setDateOfBirth] = useState('');
+    const [place, setPlace] = useState('');
+    const [lostDate, setLostDate] = useState('');
+    const [phone, setPhone] = useState('');
     const [accepted, setAccepted] = useState(false);
     const [fileName, setFileName] = useState('');
     const [isLoading, setIsLoading] = useState(false);
@@ -47,12 +47,16 @@ export default function ReportLossPage() {
                     docType,
                     fullNumber,
                     fullName,
-                    dob: '1991-04-12',
+                    dob: dateOfBirth,
                 }),
             });
 
             const data = await response.json();
             if (!response.ok) {
+                if (response.status === 401) {
+                    router.push('/login');
+                    return;
+                }
                 setError(data.message || 'Erreur lors du signalement');
                 return;
             }
@@ -116,16 +120,17 @@ export default function ReportLossPage() {
                     <h2 className="text-2xl font-black tracking-[-0.05em] text-white">Informations</h2>
                     <p className="mt-2 text-sm text-[#9aacbf]">Renseignez les informations connues</p>
                     <div className="mt-5 space-y-4">
-                        <input className="sen-input" value={lastName} onChange={(e) => setLastName(e.target.value)} placeholder="Nom — Diallo" />
-                        <input className="sen-input" value={firstName} onChange={(e) => setFirstName(e.target.value)} placeholder="Prénom — Mamadou" />
-                        <input className="sen-input" value={lastDigits} onChange={(e) => setLastDigits(e.target.value.replace(/\D/g, '').slice(0, 4))} placeholder="Numéro partiel du document — 1234" />
-                        <input className="sen-input" value={place} onChange={(e) => setPlace(e.target.value)} placeholder="Lieu approximatif — Pikine — Technopole" />
+                        <input className="sen-input" value={lastName} onChange={(e) => setLastName(e.target.value)} placeholder="Nom" />
+                        <input className="sen-input" value={firstName} onChange={(e) => setFirstName(e.target.value)} placeholder="Prénom" />
+                        <input className="sen-input" type="date" value={dateOfBirth} onChange={(e) => setDateOfBirth(e.target.value)} />
+                        <input className="sen-input" value={lastDigits} onChange={(e) => setLastDigits(e.target.value.replace(/\D/g, '').slice(0, 4))} placeholder="4 derniers chiffres du document" />
+                        <input className="sen-input" value={place} onChange={(e) => setPlace(e.target.value)} placeholder="Lieu approximatif de perte" />
                         <input className="sen-input" type="date" value={lostDate} onChange={(e) => setLostDate(e.target.value)} />
-                        <input className="sen-input" value={phone} onChange={(e) => setPhone(e.target.value)} placeholder="Téléphone — +221 77 123 45 67" />
+                        <input className="sen-input" value={phone} onChange={(e) => setPhone(e.target.value)} placeholder="Téléphone de contact" />
                     </div>
                     <button
                         className="sen-action mt-6 w-full disabled:opacity-45"
-                        disabled={!lastName || !firstName || lastDigits.length < 3 || !phone}
+                        disabled={!lastName || !firstName || !dateOfBirth || lastDigits.length < 3 || !phone}
                         onClick={() => setStep(3)}
                     >
                         Continuer
@@ -136,12 +141,16 @@ export default function ReportLossPage() {
             {step === 3 && (
                 <section className="px-5 pt-7">
                     <h2 className="text-2xl font-black tracking-[-0.05em] text-white">Vérification de sécurité</h2>
-                    <p className="mt-2 text-sm text-[#9aacbf]">Pour garantir la sécurité de votre déclaration</p>
+                    <p className="mt-2 text-sm text-[#9aacbf]">Cette recherche sera créée dans votre compte connecté.</p>
 
                     <div className="sen-card mt-5 p-4">
-                        <p className="text-sm font-bold text-[#8094ad]">Code envoyé à {phone.replace(/(\+221\s\d{2})\s\d{3}\s\d{2}\s(\d{2})/, '$1 ••• •• $2')}</p>
-                        <input className="sen-input mt-3 text-center text-2xl font-black tracking-[0.35em]" maxLength={6} value={otp} onChange={(e) => setOtp(e.target.value.replace(/\D/g, '').slice(0, 6))} placeholder="000000" />
-                        <p className="mt-3 text-center text-xs font-semibold text-[#f6c945]">Renvoi possible dans 01:42</p>
+                        <p className="text-sm font-bold text-[#8094ad]">Résumé réel envoyé à l’API</p>
+                        <div className="mt-3 space-y-2 text-sm text-[#b7c3d2]">
+                            <p><span className="text-white">Document :</span> {docType}</p>
+                            <p><span className="text-white">Nom :</span> {fullName}</p>
+                            <p><span className="text-white">Numéro :</span> se termine par {lastDigits}</p>
+                            <p><span className="text-white">Naissance :</span> {dateOfBirth}</p>
+                        </div>
                     </div>
 
                     <div className="mt-4 rounded-[24px] border border-white/10 bg-white/[0.045] p-4">
@@ -162,10 +171,10 @@ export default function ReportLossPage() {
 
                     <button
                         className="sen-action mt-5 w-full disabled:opacity-45"
-                        disabled={otp.length !== 6 || !accepted || isLoading}
+                        disabled={!accepted || isLoading}
                         onClick={submit}
                     >
-                        {isLoading ? 'Lancement...' : 'Lancer l’alerte sécurisée'}
+                        {isLoading ? 'Création...' : 'Créer la recherche sécurisée'}
                     </button>
                     <p className="mt-3 text-center text-xs font-semibold text-[#34f58b]">Vos données sont chiffrées et protégées</p>
                 </section>
