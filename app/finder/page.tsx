@@ -14,12 +14,18 @@ type DepositPoint = {
     phone?: string;
 };
 
+type LocationOption = {
+    id: string;
+    name: string;
+};
+
 export default function FinderPage() {
     const [docType, setDocType] = useState<DocType>('CNI');
     const [lastFourDigits, setLastFourDigits] = useState('');
     const [namePrefix, setNamePrefix] = useState('');
     const [regionFound, setRegionFound] = useState('DAKAR');
     const [depositPointId, setDepositPointId] = useState('');
+    const [regions, setRegions] = useState<LocationOption[]>([]);
     const [depositPoints, setDepositPoints] = useState<DepositPoint[]>([]);
     const [photoName, setPhotoName] = useState('');
     const [isLoadingPoints, setIsLoadingPoints] = useState(false);
@@ -30,7 +36,21 @@ export default function FinderPage() {
         depositPoint?: { name: string; address: string; phone?: string };
     } | null>(null);
 
-    const regions = ['DAKAR', 'THIES', 'SAINT_LOUIS', 'DIOURBEL', 'KAOLACK', 'ZIGUINCHOR'];
+    useEffect(() => {
+        fetch('/api/locations/regions')
+            .then((response) => {
+                if (!response.ok) throw new Error('Régions indisponibles');
+                return response.json();
+            })
+            .then((data) => {
+                const nextRegions = data.regions || [];
+                setRegions(nextRegions);
+                if (nextRegions.length > 0 && !nextRegions.some((region: LocationOption) => region.id === regionFound)) {
+                    setRegionFound(nextRegions[0].id);
+                }
+            })
+            .catch(() => setError('Impossible de charger les régions du Sénégal'));
+    }, [regionFound]);
 
     useEffect(() => {
         setIsLoadingPoints(true);
@@ -145,7 +165,7 @@ export default function FinderPage() {
                     />
                     <select className="sen-select" value={regionFound} onChange={(event) => setRegionFound(event.target.value)}>
                         {regions.map((region) => (
-                            <option key={region} value={region}>{region.replace('_', ' ')}</option>
+                            <option key={region.id} value={region.id}>{region.name}</option>
                         ))}
                     </select>
                     <select className="sen-select" value={depositPointId} onChange={(event) => setDepositPointId(event.target.value)} disabled={isLoadingPoints || depositPoints.length === 0}>

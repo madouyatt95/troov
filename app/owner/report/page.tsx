@@ -1,11 +1,16 @@
 'use client';
 
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { SenDocuShell } from '@/components/SenDocuShell';
 
 type DocType = 'CNI' | 'PASSPORT';
+
+type LocationOption = {
+    id: string;
+    name: string;
+};
 
 const docTypes = [
     ['CNI', 'Carte nationale d’identité', '🪪'],
@@ -25,6 +30,12 @@ export default function ReportLossPage() {
     const [lastName, setLastName] = useState('');
     const [dateOfBirth, setDateOfBirth] = useState('');
     const [place, setPlace] = useState('');
+    const [regions, setRegions] = useState<LocationOption[]>([]);
+    const [departments, setDepartments] = useState<LocationOption[]>([]);
+    const [communes, setCommunes] = useState<LocationOption[]>([]);
+    const [selectedRegion, setSelectedRegion] = useState('DAKAR');
+    const [selectedDepartment, setSelectedDepartment] = useState('');
+    const [selectedCommune, setSelectedCommune] = useState('');
     const [lostDate, setLostDate] = useState('');
     const [phone, setPhone] = useState('');
     const [accepted, setAccepted] = useState(false);
@@ -34,6 +45,67 @@ export default function ReportLossPage() {
 
     const fullNumber = useMemo(() => `${docType}-${lastDigits || '0000'}-SND`, [docType, lastDigits]);
     const fullName = useMemo(() => `${lastName} ${firstName}`.trim().toUpperCase(), [lastName, firstName]);
+    const locationLabel = useMemo(() => {
+        const regionName = regions.find((region) => region.id === selectedRegion)?.name;
+        const departmentName = departments.find((department) => department.id === selectedDepartment)?.name;
+        const communeName = communes.find((commune) => commune.id === selectedCommune)?.name;
+
+        return [communeName, departmentName, regionName, place].filter(Boolean).join(' • ');
+    }, [communes, departments, place, regions, selectedCommune, selectedDepartment, selectedRegion]);
+
+    useEffect(() => {
+        fetch('/api/locations/regions')
+            .then((response) => {
+                if (!response.ok) throw new Error('Régions indisponibles');
+                return response.json();
+            })
+            .then((data) => {
+                const nextRegions = data.regions || [];
+                setRegions(nextRegions);
+                if (nextRegions.length > 0 && !nextRegions.some((region: LocationOption) => region.id === selectedRegion)) {
+                    setSelectedRegion(nextRegions[0].id);
+                }
+            })
+            .catch(() => setError('Impossible de charger les régions du Sénégal'));
+    }, [selectedRegion]);
+
+    useEffect(() => {
+        if (!selectedRegion) return;
+
+        setSelectedDepartment('');
+        setSelectedCommune('');
+        setCommunes([]);
+
+        fetch(`/api/locations/departments?region=${encodeURIComponent(selectedRegion)}`)
+            .then((response) => {
+                if (!response.ok) throw new Error('Départements indisponibles');
+                return response.json();
+            })
+            .then((data) => {
+                const nextDepartments = data.departments || [];
+                setDepartments(nextDepartments);
+                setSelectedDepartment(nextDepartments[0]?.id || '');
+            })
+            .catch(() => setError('Impossible de charger les départements'));
+    }, [selectedRegion]);
+
+    useEffect(() => {
+        if (!selectedDepartment) return;
+
+        setSelectedCommune('');
+
+        fetch(`/api/locations/communes?region=${encodeURIComponent(selectedRegion)}&department=${encodeURIComponent(selectedDepartment)}`)
+            .then((response) => {
+                if (!response.ok) throw new Error('Communes indisponibles');
+                return response.json();
+            })
+            .then((data) => {
+                const nextCommunes = data.communes || [];
+                setCommunes(nextCommunes);
+                setSelectedCommune(nextCommunes[0]?.id || '');
+            })
+            .catch(() => setError('Impossible de charger les communes'));
+    }, [selectedDepartment, selectedRegion]);
 
     const submit = async () => {
         setError('');
@@ -124,7 +196,26 @@ export default function ReportLossPage() {
                         <input className="sen-input" value={firstName} onChange={(e) => setFirstName(e.target.value)} placeholder="Prénom" />
                         <input className="sen-input" type="date" value={dateOfBirth} onChange={(e) => setDateOfBirth(e.target.value)} />
                         <input className="sen-input" value={lastDigits} onChange={(e) => setLastDigits(e.target.value.replace(/\D/g, '').slice(0, 4))} placeholder="4 derniers chiffres du document" />
-                        <input className="sen-input" value={place} onChange={(e) => setPlace(e.target.value)} placeholder="Lieu approximatif de perte" />
+                        <div className="grid grid-cols-1 gap-3">
+                            <select className="sen-select" value={selectedRegion} onChange={(e) => setSelectedRegion(e.target.value)}>
+                                {regions.map((region) => (
+                                    <option key={region.id} value={region.id}>{region.name}</option>
+                                ))}
+                            </select>
+                            <select className="sen-select" value={selectedDepartment} onChange={(e) => setSelectedDepartment(e.target.value)} disabled={departments.length === 0}>
+                                {departments.length === 0 && <option value="">Département</option>}
+                                {departments.map((department) => (
+                                    <option key={department.id} value={department.id}>{department.name}</option>
+                                ))}
+                            </select>
+                            <select className="sen-select" value={selectedCommune} onChange={(e) => setSelectedCommune(e.target.value)} disabled={communes.length === 0}>
+                                {communes.length === 0 && <option value="">Commune / quartier</option>}
+                                {communes.map((commune) => (
+                                    <option key={commune.id} value={commune.id}>{commune.name}</option>
+                                ))}
+                            </select>
+                        </div>
+                        <input className="sen-input" value={place} onChange={(e) => setPlace(e.target.value)} placeholder="Repère ou lieu précis — optionnel" />
                         <input className="sen-input" type="date" value={lostDate} onChange={(e) => setLostDate(e.target.value)} />
                         <input className="sen-input" value={phone} onChange={(e) => setPhone(e.target.value)} placeholder="Téléphone de contact" />
                     </div>
@@ -150,6 +241,7 @@ export default function ReportLossPage() {
                             <p><span className="text-white">Nom :</span> {fullName}</p>
                             <p><span className="text-white">Numéro :</span> se termine par {lastDigits}</p>
                             <p><span className="text-white">Naissance :</span> {dateOfBirth}</p>
+                            {locationLabel && <p><span className="text-white">Zone de perte :</span> {locationLabel}</p>}
                         </div>
                     </div>
 
