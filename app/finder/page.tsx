@@ -3,6 +3,7 @@
 import { useEffect, useMemo, useState } from 'react';
 import Link from 'next/link';
 import { SenDocuShell } from '@/components/SenDocuShell';
+import { SecureFilePicker } from '@/components/SecureFilePicker';
 
 type DocType = 'CNI' | 'PASSPORT';
 
@@ -27,7 +28,7 @@ export default function FinderPage() {
     const [depositPointId, setDepositPointId] = useState('');
     const [regions, setRegions] = useState<LocationOption[]>([]);
     const [depositPoints, setDepositPoints] = useState<DepositPoint[]>([]);
-    const [photoName, setPhotoName] = useState('');
+    const [attachment, setAttachment] = useState<File | null>(null);
     const [isLoadingPoints, setIsLoadingPoints] = useState(false);
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [error, setError] = useState('');
@@ -182,17 +183,12 @@ export default function FinderPage() {
                         </div>
                     )}
 
-                    <label className="flex cursor-pointer items-center justify-center rounded-[18px] border border-dashed border-[#53a9ff]/45 bg-[#53a9ff]/8 px-4 py-4 text-sm font-black text-[#53a9ff]">
-                        Ajouter une photo — optionnel
-                        <input
-                            type="file"
-                            accept="image/*,.pdf"
-                            capture="environment"
-                            className="hidden"
-                            onChange={(event) => setPhotoName(event.target.files?.[0]?.name || '')}
-                        />
-                    </label>
-                    {photoName && <p className="text-xs text-[#8094ad]">Fichier sélectionné localement : {photoName}</p>}
+                    <SecureFilePicker
+                        label="Photo du document — optionnelle"
+                        helper="Ajoutez une photo floutée si possible. Ne partagez jamais le document directement avec un inconnu."
+                        onFileChange={setAttachment}
+                    />
+                    {attachment && <p className="text-xs text-[#34f58b]">Pièce prête pour l’envoi sécurisé dès activation du stockage production.</p>}
                 </div>
 
                 {error && (

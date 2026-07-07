@@ -4,6 +4,7 @@ import { useEffect, useMemo, useState } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { SenDocuShell } from '@/components/SenDocuShell';
+import { SecureFilePicker } from '@/components/SecureFilePicker';
 
 type DocType = 'CNI' | 'PASSPORT';
 
@@ -39,7 +40,7 @@ export default function ReportLossPage() {
     const [lostDate, setLostDate] = useState('');
     const [phone, setPhone] = useState('');
     const [accepted, setAccepted] = useState(false);
-    const [fileName, setFileName] = useState('');
+    const [attachment, setAttachment] = useState<File | null>(null);
     const [isLoading, setIsLoading] = useState(false);
     const [error, setError] = useState('');
 
@@ -245,13 +246,13 @@ export default function ReportLossPage() {
                         </div>
                     </div>
 
-                    <div className="mt-4 rounded-[24px] border border-white/10 bg-white/[0.045] p-4">
-                        <p className="font-black text-white">Pièce justificative — optionnelle</p>
-                        <label className="mt-3 flex cursor-pointer items-center justify-center rounded-2xl border border-dashed border-[#53a9ff]/45 bg-[#53a9ff]/8 px-4 py-4 text-sm font-black text-[#53a9ff]">
-                            Ajouter une pièce — image ou PDF
-                            <input type="file" accept="image/*,.pdf" className="hidden" onChange={(e) => setFileName(e.target.files?.[0]?.name || '')} />
-                        </label>
-                        {fileName && <p className="mt-2 text-xs text-[#9aacbf]">{fileName}</p>}
+                    <div className="mt-4">
+                        <SecureFilePicker
+                            label="Pièce justificative — optionnelle"
+                            helper="Ajoutez une preuve si utile. Les formats acceptés sont JPG, PNG, WebP et PDF, maximum 8 Mo."
+                            onFileChange={setAttachment}
+                        />
+                        {attachment && <p className="mt-2 text-xs text-[#34f58b]">Pièce vérifiée localement, prête pour le stockage sécurisé production.</p>}
                     </div>
 
                     <label className="mt-5 flex items-start gap-3 text-sm leading-5 text-[#9aacbf]">

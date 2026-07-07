@@ -11,9 +11,24 @@ interface Declaration {
     trackingCode: string;
     createdAt: string;
     regionFound: string;
+    matchCount?: number;
+    latestMatch?: {
+        id: string;
+        status: string;
+        confidenceScore: number;
+        matchedAt: string;
+    } | null;
 }
 
-type Filter = 'PENDING' | 'DEPOSITED' | 'MATCHED';
+type AgentActivity = {
+    id: string;
+    event: string;
+    targetId?: string;
+    createdAt: string;
+    metadata?: unknown;
+};
+
+type Filter = 'PENDING' | 'APPROVED' | 'DEPOSITED' | 'MATCHED';
 
 const statusConfig: Record<string, { label: string; color: string; bg: string }> = {
     PENDING: { label: 'À valider', color: 'text-[#f6c945]', bg: 'bg-[#f6c945]/12' },
@@ -25,14 +40,26 @@ const statusConfig: Record<string, { label: string; color: string; bg: string }>
 
 const filterLabels: Record<Filter, string> = {
     PENDING: 'À valider',
+    APPROVED: 'Vérifiés',
     DEPOSITED: 'Déposés',
     MATCHED: 'Matchés',
+};
+
+const eventLabels: Record<string, string> = {
+    AGENT_DECLARATION_APPROVE: 'Document vérifié',
+    AGENT_DECLARATION_DEPOSIT: 'Dépôt confirmé',
+    AGENT_DECLARATION_REJECT: 'Déclaration rejetée',
+    AGENT_DECLARATION_PICKUP: 'Retrait confirmé',
 };
 
 export default function AgentDashboard() {
     const [declarations, setDeclarations] = useState<Declaration[]>([]);
     const [depositPointName, setDepositPointName] = useState('');
+    const [depositPointDetails, setDepositPointDetails] = useState<{ address?: string; phone?: string }>({});
+    const [activity, setActivity] = useState<AgentActivity[]>([]);
+    const [counts, setCounts] = useState<Record<string, number>>({});
     const [filter, setFilter] = useState<Filter>('PENDING');
+    const [trackingSearch, setTrackingSearch] = useState('');
     const [isLoading, setIsLoading] = useState(true);
     const [actionLoading, setActionLoading] = useState<string | null>(null);
     const [error, setError] = useState('');
@@ -42,7 +69,9 @@ export default function AgentDashboard() {
         setError('');
 
         try {
-            const response = await fetch(`/api/agent/declarations?status=${filter}`);
+            const params = new URLSearchParams({ status: filter });
+            if (trackingSearch.trim()) params.set('tracking', trackingSearch.trim());
+            const response = await fetch(`/api/agent/declarations?${params.toString()}`);
 
             if (response.status === 401 || response.status === 403) {
                 window.location.href = '/login';
@@ -58,18 +87,24 @@ export default function AgentDashboard() {
 
             setDeclarations(data.declarations || []);
             setDepositPointName(data.depositPoint?.name || '');
+            setDepositPointDetails({
+                address: data.depositPoint?.address || '',
+                phone: data.depositPoint?.phone || '',
+            });
+            setCounts(data.counts || {});
+            setActivity(data.activity || []);
         } catch {
             setError('Connexion impossible');
         } finally {
             setIsLoading(false);
         }
-    }, [filter]);
+    }, [filter, trackingSearch]);
 
     useEffect(() => {
         fetchDeclarations();
     }, [fetchDeclarations]);
 
-    const handleAction = async (declarationId: string, action: 'approve' | 'reject' | 'pickup') => {
+    const handleAction = async (declarationId: string, action: 'approve' | 'deposit' | 'reject' | 'pickup') => {
         setActionLoading(declarationId);
         setError('');
 
@@ -106,8 +141,29 @@ export default function AgentDashboard() {
                 <button onClick={fetchDeclarations} className="grid h-9 w-9 place-items-center rounded-xl text-[#34f58b]">↻</button>
             </header>
 
-            <section className="grid grid-cols-3 gap-2 px-5 pt-6">
-                {(['PENDING', 'DEPOSITED', 'MATCHED'] as Filter[]).map((tab) => (
+            <section className="px-5 pt-6">
+                <div className="sen-card p-4">
+                    <p className="text-sm font-bold text-[#8094ad]">Point rattaché</p>
+                    <h2 className="mt-1 text-xl font-black tracking-[-0.04em] text-white">{depositPointName || 'Point agent'}</h2>
+                    {depositPointDetails.address && <p className="mt-2 text-sm text-[#9aacbf]">{depositPointDetails.address}</p>}
+                    {depositPointDetails.phone && <a href={`tel:${depositPointDetails.phone}`} className="mt-3 inline-flex rounded-full bg-[#34f58b]/10 px-3 py-1 text-xs font-black text-[#34f58b]">{depositPointDetails.phone}</a>}
+                </div>
+            </section>
+
+            <section className="grid grid-cols-[1fr_auto] gap-2 px-5 pt-3">
+                <input
+                    className="sen-input min-h-11 font-mono uppercase"
+                    value={trackingSearch}
+                    onChange={(event) => setTrackingSearch(event.target.value.toUpperCase())}
+                    placeholder="Scanner / saisir code SDC..."
+                />
+                <button onClick={fetchDeclarations} className="rounded-[16px] border border-[#53a9ff]/35 bg-[#53a9ff]/10 px-4 text-sm font-black text-[#53a9ff]">
+                    Chercher
+                </button>
+            </section>
+
+            <section className="grid grid-cols-4 gap-2 px-5 pt-3">
+                {(['PENDING', 'APPROVED', 'DEPOSITED', 'MATCHED'] as Filter[]).map((tab) => (
                     <button
                         key={tab}
                         onClick={() => setFilter(tab)}
@@ -117,6 +173,7 @@ export default function AgentDashboard() {
                             }`}
                     >
                         {filterLabels[tab]}
+                        <span className="mt-1 block text-[11px] opacity-70">{counts[tab] || 0}</span>
                     </button>
                 ))}
             </section>
@@ -151,6 +208,11 @@ export default function AgentDashboard() {
                                     <p className="mt-2 text-xs text-[#8094ad]">
                                         {new Date(declaration.createdAt).toLocaleDateString('fr-FR')} · {declaration.regionFound}
                                     </p>
+                                    {declaration.matchCount ? (
+                                        <p className="mt-2 text-xs font-black text-[#b57cff]">
+                                            {declaration.matchCount} correspondance(s) possible(s)
+                                        </p>
+                                    ) : null}
                                 </div>
                                 <span className={`rounded-full px-3 py-1 text-xs font-black ${status.bg} ${status.color}`}>
                                     {status.label}
@@ -164,7 +226,7 @@ export default function AgentDashboard() {
                                         onClick={() => handleAction(declaration.id, 'approve')}
                                         disabled={actionLoading === declaration.id}
                                     >
-                                        Valider le dépôt
+                                        Marquer vérifié
                                     </button>
                                     <button
                                         className="rounded-xl border border-[#ff6b6b]/30 bg-[#ff6b6b]/10 px-4 font-black text-[#ff8585]"
@@ -174,6 +236,16 @@ export default function AgentDashboard() {
                                         Rejeter
                                     </button>
                                 </div>
+                            )}
+
+                            {declaration.status === 'APPROVED' && (
+                                <button
+                                    className="sen-action mt-4 w-full"
+                                    onClick={() => handleAction(declaration.id, 'deposit')}
+                                    disabled={actionLoading === declaration.id}
+                                >
+                                    Confirmer le dépôt physique
+                                </button>
                             )}
 
                             {declaration.status === 'MATCHED' && (
@@ -189,6 +261,20 @@ export default function AgentDashboard() {
                     );
                 })}
             </section>
+
+            {activity.length > 0 && (
+                <section className="px-5 py-6">
+                    <h2 className="text-lg font-black tracking-[-0.04em] text-white">Journal récent</h2>
+                    <div className="mt-3 space-y-2">
+                        {activity.slice(0, 5).map((item) => (
+                            <div key={item.id} className="rounded-[18px] border border-white/10 bg-white/[0.045] p-3">
+                                <p className="text-sm font-black text-white">{eventLabels[item.event] || item.event}</p>
+                                <p className="mt-1 text-xs text-[#8094ad]">{new Date(item.createdAt).toLocaleString('fr-FR')}</p>
+                            </div>
+                        ))}
+                    </div>
+                </section>
+            )}
         </SenDocuShell>
     );
 }

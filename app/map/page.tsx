@@ -20,6 +20,11 @@ type DepositPoint = {
     serviceLabel?: string;
 };
 
+type LocationOption = {
+    id: string;
+    name: string;
+};
+
 const filters = ['Tous', 'ADMIN', 'CITY_HALL', 'POLICE', 'PARTNER'];
 const LiveMap = dynamic(() => import('@/components/LeafletMap').then((mod) => mod.LeafletMap), {
     ssr: false,
@@ -32,13 +37,31 @@ const LiveMap = dynamic(() => import('@/components/LeafletMap').then((mod) => mo
     ),
 });
 
+function normalizeLocation(value: string) {
+    return value
+        .toUpperCase()
+        .normalize('NFD')
+        .replace(/[\u0300-\u036f]/g, '')
+        .replace(/[-\s]+/g, '_');
+}
+
 export default function MapPage() {
     const [points, setPoints] = useState<DepositPoint[]>([]);
     const [selectedId, setSelectedId] = useState<string | null>(null);
     const [filter, setFilter] = useState('Tous');
+    const [query, setQuery] = useState('');
+    const [region, setRegion] = useState('ALL');
+    const [regions, setRegions] = useState<LocationOption[]>([]);
     const [isLoading, setIsLoading] = useState(true);
     const [error, setError] = useState('');
     const [userPosition, setUserPosition] = useState<{ lat: number; lng: number } | null>(null);
+
+    useEffect(() => {
+        fetch('/api/locations/regions')
+            .then((response) => response.json())
+            .then((data) => setRegions(data.regions || []))
+            .catch(() => setRegions([]));
+    }, []);
 
     useEffect(() => {
         const loadPoints = (coords?: { lat: number; lng: number }) => {
@@ -80,12 +103,27 @@ export default function MapPage() {
     }, []);
 
     const filteredPoints = useMemo(() => {
-        if (filter === 'Tous') return points;
-        if (filter === 'PARTNER') return points.filter((point) => ['PARTNER', 'OPERATOR_SHOP'].includes(point.type));
-        return points.filter((point) => point.type === filter);
-    }, [filter, points]);
+        const normalizedQuery = query.trim().toLowerCase();
+
+        return points.filter((point) => {
+            const typeMatches = filter === 'Tous'
+                || (filter === 'PARTNER' ? ['PARTNER', 'OPERATOR_SHOP'].includes(point.type) : point.type === filter);
+            const regionMatches = region === 'ALL' || normalizeLocation(point.region) === region;
+            const queryMatches = !normalizedQuery
+                || point.name.toLowerCase().includes(normalizedQuery)
+                || point.address.toLowerCase().includes(normalizedQuery)
+                || point.region.toLowerCase().includes(normalizedQuery);
+
+            return typeMatches && regionMatches && queryMatches;
+        });
+    }, [filter, points, query, region]);
 
     const selectedPoint = filteredPoints.find((point) => point.id === selectedId) || filteredPoints[0] || null;
+    const closestPoint = filteredPoints.find((point) => point.distance !== undefined);
+
+    const selectClosestPoint = () => {
+        if (closestPoint) setSelectedId(closestPoint.id);
+    };
 
     return (
         <SenDocuShell>
@@ -95,7 +133,33 @@ export default function MapPage() {
                 <span className="w-9" />
             </header>
 
-            <section className="no-scrollbar flex gap-2 overflow-x-auto px-5 pt-6">
+            <section className="space-y-3 px-5 pt-6">
+                <div className="grid grid-cols-[1fr_auto] gap-2">
+                    <input
+                        className="sen-input min-h-11"
+                        value={query}
+                        onChange={(event) => setQuery(event.target.value)}
+                        placeholder="Rechercher un point, quartier..."
+                    />
+                    <button
+                        type="button"
+                        onClick={selectClosestPoint}
+                        disabled={!closestPoint}
+                        className="rounded-[16px] border border-[#34f58b]/35 bg-[#34f58b]/10 px-4 text-sm font-black text-[#34f58b] disabled:opacity-40"
+                    >
+                        Plus proche
+                    </button>
+                </div>
+
+                <select className="sen-select min-h-11" value={region} onChange={(event) => setRegion(event.target.value)}>
+                    <option value="ALL">Toutes les régions</option>
+                    {regions.map((item) => (
+                        <option key={item.id} value={item.id}>{item.name}</option>
+                    ))}
+                </select>
+            </section>
+
+            <section className="no-scrollbar flex gap-2 overflow-x-auto px-5 pt-3">
                 {filters.map((item) => (
                     <button
                         key={item}
@@ -130,7 +194,7 @@ export default function MapPage() {
                             <p className="text-xs font-semibold text-[#8094ad]">{userPosition ? 'Triés par distance' : 'Points chargés depuis l’API'}</p>
                             <p className="text-lg font-black text-white">{filteredPoints.length} point(s)</p>
                         </div>
-                        <span className="rounded-full bg-[#34f58b]/15 px-3 py-1 text-xs font-bold text-[#34f58b]">{isLoading ? 'Load' : 'Live'}</span>
+                        <span className="rounded-full bg-[#34f58b]/15 px-3 py-1 text-xs font-bold text-[#34f58b]">{isLoading ? 'Load' : 'Carte réelle'}</span>
                     </div>
 
                     {error && (

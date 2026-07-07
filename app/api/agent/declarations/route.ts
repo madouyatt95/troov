@@ -3,6 +3,7 @@ import prisma from '@/lib/db/prisma';
 import { verifySession, hasRole } from '@/lib/auth/session';
 import { DeclarationStatus, MatchStatus, ReportStatus } from '@prisma/client';
 import { findMatchesForDeclaration } from '@/lib/matching/engine';
+import { hashAuditEntry } from '@/lib/hash';
 
 // GET /api/agent/declarations - Get declarations for agent's deposit point
 export async function GET(request: NextRequest) {
@@ -31,6 +32,7 @@ export async function GET(request: NextRequest) {
 
         const { searchParams } = new URL(request.url);
         const status = searchParams.get('status') as DeclarationStatus | null;
+        const tracking = searchParams.get('tracking')?.trim();
 
         const where: Record<string, unknown> = {
             depositPointId: agent.depositPointId,
@@ -40,10 +42,43 @@ export async function GET(request: NextRequest) {
             where.status = status;
         }
 
+        if (tracking) {
+            where.trackingCode = {
+                contains: tracking.toUpperCase(),
+                mode: 'insensitive',
+            };
+        }
+
         const declarations = await prisma.declaration.findMany({
             where,
             orderBy: { createdAt: 'desc' },
-            take: 50
+            take: 50,
+            include: {
+                matches: {
+                    select: {
+                        id: true,
+                        status: true,
+                        confidenceScore: true,
+                        matchedAt: true,
+                    },
+                    orderBy: { matchedAt: 'desc' },
+                },
+            },
+        });
+
+        const statusCounts = await prisma.declaration.groupBy({
+            by: ['status'],
+            where: { depositPointId: agent.depositPointId },
+            _count: { status: true },
+        });
+
+        const auditLogs = await prisma.auditLog.findMany({
+            where: {
+                targetType: 'Declaration',
+                targetId: { in: declarations.map((item) => item.id) },
+            },
+            orderBy: { createdAt: 'desc' },
+            take: 12,
         });
 
         return NextResponse.json({
@@ -54,11 +89,30 @@ export async function GET(request: NextRequest) {
                 status: d.status,
                 trackingCode: d.trackingCode,
                 createdAt: d.createdAt.toISOString(),
-                regionFound: d.regionFound
+                regionFound: d.regionFound,
+                matchCount: d.matches.length,
+                latestMatch: d.matches[0]
+                    ? {
+                        id: d.matches[0].id,
+                        status: d.matches[0].status,
+                        confidenceScore: d.matches[0].confidenceScore,
+                        matchedAt: d.matches[0].matchedAt.toISOString(),
+                    }
+                    : null,
+            })),
+            counts: Object.fromEntries(statusCounts.map((item) => [item.status, item._count.status])),
+            activity: auditLogs.map((log) => ({
+                id: log.id,
+                event: log.event,
+                targetId: log.targetId,
+                createdAt: log.createdAt.toISOString(),
+                metadata: log.metadata,
             })),
             depositPoint: {
                 id: agent.depositPoint.id,
-                name: agent.depositPoint.name
+                name: agent.depositPoint.name,
+                address: agent.depositPoint.address,
+                phone: agent.depositPoint.phone,
             }
         });
     } catch (error) {
@@ -124,6 +178,9 @@ export async function PATCH(request: NextRequest) {
 
         switch (action) {
             case 'approve':
+                newStatus = DeclarationStatus.APPROVED;
+                break;
+            case 'deposit':
                 newStatus = DeclarationStatus.DEPOSITED;
                 break;
             case 'reject':
@@ -163,8 +220,36 @@ export async function PATCH(request: NextRequest) {
             data: { status: newStatus }
         });
 
+        const previousAudit = await prisma.auditLog.findFirst({
+            orderBy: { createdAt: 'desc' },
+            select: { hash: true },
+        });
+        const auditPayload = {
+            event: `AGENT_DECLARATION_${String(action).toUpperCase()}`,
+            userId: session.userId,
+            targetType: 'Declaration',
+            targetId: declarationId,
+            metadata: {
+                fromStatus: declaration.status,
+                toStatus: newStatus,
+                trackingCode: declaration.trackingCode,
+                depositPointId: agent?.depositPointId || declaration.depositPointId,
+            },
+        };
+        const previousHash = previousAudit?.hash || 'GENESIS';
+
+        await prisma.auditLog.create({
+            data: {
+                ...auditPayload,
+                ipAddress: request.headers.get('x-forwarded-for') || 'unknown',
+                deviceFingerprint: request.headers.get('x-device-fingerprint') || null,
+                previousHash,
+                hash: hashAuditEntry(previousHash, auditPayload),
+            },
+        });
+
         // If approved/deposited, trigger matching
-        if (action === 'approve') {
+        if (action === 'approve' || action === 'deposit') {
             findMatchesForDeclaration(declarationId).catch(console.error);
         }
 
